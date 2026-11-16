@@ -1,1 +1,1262 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>Scrble Math Board - Bảng Viết Toán 11</title>
+  <style>
+    :root {
+      --bg-app: #f3f4f6;
+      --toolbar-bg: rgba(255, 255, 255, 0.94);
+      --toolbar-border: #e5e7eb;
+      --text-main: #1f2937;
+      --text-muted: #6b7280;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --danger: #ef4444;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+    }
 
+    body.dark-ui {
+      --bg-app: #111827;
+      --toolbar-bg: rgba(31, 41, 55, 0.94);
+      --toolbar-border: #374151;
+      --text-main: #f9fafb;
+      --text-muted: #9ca3af;
+      --accent: #3b82f6;
+      --accent-soft: #1e3a8a;
+      --shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      user-select: none;
+      -webkit-user-select: none;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    }
+
+    body, html {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      background-color: var(--bg-app);
+      color: var(--text-main);
+    }
+
+    #canvas-container {
+      position: relative;
+      width: 100vw;
+      height: 100vh;
+      overflow: hidden;
+      touch-action: none;
+    }
+
+    canvas {
+      display: block;
+      width: 100%;
+      height: 100%;
+      cursor: crosshair;
+    }
+
+    /* Top Toolbar */
+    .toolbar {
+      position: fixed;
+      top: 12px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--toolbar-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--toolbar-border);
+      border-radius: 16px;
+      box-shadow: var(--shadow);
+      z-index: 100;
+      max-width: 96vw;
+      overflow-x: auto;
+    }
+
+    .toolbar::-webkit-scrollbar {
+      height: 4px;
+    }
+    .toolbar::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 4px;
+    }
+
+    .divider {
+      width: 1px;
+      height: 26px;
+      background: var(--toolbar-border);
+      margin: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .tool-btn {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 38px;
+      height: 38px;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text-main);
+      cursor: pointer;
+      transition: all 0.15s ease;
+      flex-shrink: 0;
+    }
+
+    .tool-btn:hover {
+      background: rgba(128, 128, 128, 0.12);
+    }
+
+    .tool-btn.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+    }
+
+    .tool-btn.danger:hover {
+      background: #fee2e2;
+      color: var(--danger);
+    }
+
+    .tool-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke-width: 2;
+    }
+
+    /* Colors & Sizes */
+    .color-group {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 0 4px;
+      flex-shrink: 0;
+    }
+
+    .color-dot {
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: transform 0.15s;
+    }
+
+    .color-dot:hover {
+      transform: scale(1.15);
+    }
+
+    .color-dot.active {
+      border-color: var(--text-main);
+      transform: scale(1.18);
+    }
+
+    #customColor {
+      width: 24px;
+      height: 24px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .size-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      flex-shrink: 0;
+    }
+
+    .size-btn {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+    }
+
+    .size-btn.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+    }
+
+    .size-circle {
+      background: var(--text-main);
+      border-radius: 50%;
+    }
+
+    /* Sub-menu for Shapes & Paper */
+    .popover {
+      position: fixed;
+      top: 66px;
+      background: var(--toolbar-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--toolbar-border);
+      border-radius: 14px;
+      padding: 10px;
+      box-shadow: var(--shadow);
+      display: none;
+      gap: 6px;
+      z-index: 101;
+      flex-wrap: wrap;
+      max-width: 320px;
+    }
+
+    .popover.open {
+      display: flex;
+    }
+
+    .pop-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-main);
+      cursor: pointer;
+      font-size: 13px;
+      width: 100%;
+      text-align: left;
+    }
+
+    .pop-item:hover {
+      background: rgba(128, 128, 128, 0.12);
+    }
+
+    .pop-item.active {
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    /* Bottom Bar (Pages & Zoom) */
+    .bottom-bar {
+      position: fixed;
+      bottom: 14px;
+      left: 50%;
+      transform: translateX(-50%);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 6px 14px;
+      background: var(--toolbar-bg);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--toolbar-border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      z-index: 100;
+      font-size: 13px;
+    }
+
+    .badge-btn {
+      padding: 5px 10px;
+      border-radius: 8px;
+      border: 1px solid var(--toolbar-border);
+      background: transparent;
+      color: var(--text-main);
+      cursor: pointer;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-btn:hover {
+      background: rgba(128, 128, 128, 0.12);
+    }
+
+    /* Floating Text Input */
+    #text-input-overlay {
+      position: fixed;
+      display: none;
+      z-index: 200;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px dashed var(--accent);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 20px;
+      color: #111827;
+      outline: none;
+      min-width: 140px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    /* Selection Floating Action */
+    #selection-actions {
+      position: fixed;
+      bottom: 64px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--toolbar-bg);
+      border: 1px solid var(--toolbar-border);
+      border-radius: 12px;
+      padding: 6px 12px;
+      box-shadow: var(--shadow);
+      display: none;
+      align-items: center;
+      gap: 8px;
+      z-index: 105;
+    }
+  </style>
+</head>
+<body>
+
+<div id="canvas-container">
+  <canvas id="board"></canvas>
+</div>
+
+<!-- Top Toolbar -->
+<div class="toolbar" id="main-toolbar">
+  <!-- Select & Pan -->
+  <button class="tool-btn" data-tool="select" title="Chọn & Di chuyển (V)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/><path d="M13 13l6 6"/></svg>
+  </button>
+  <button class="tool-btn" data-tool="pan" title="Kéo bảng (Giữ Space)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M18 11V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v0"/><path d="M14 10V4a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v2"/><path d="M10 10.5V6a2 2 0 0 0-2-2v0a2 2 0 0 0-2 2v8"/><path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15"/></svg>
+  </button>
+
+  <div class="divider"></div>
+
+  <!-- Pens & Eraser -->
+  <button class="tool-btn active" data-tool="pen" title="Bút viết (P)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/></svg>
+  </button>
+  <button class="tool-btn" data-tool="highlighter" title="Bút dạ quang (H)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m9 11-6 6v3h9l3-3"/><path d="m22 12-4.6 4.6a2 2 0 0 1-2.8 0l-5.2-5.2a2 2 0 0 1 0-2.8L14 4"/></svg>
+  </button>
+  <button class="tool-btn" data-tool="eraser" title="Tẩy nét thông minh (E)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/><path d="m5 11 9 9"/></svg>
+  </button>
+
+  <div class="divider"></div>
+
+  <!-- Geometry & Math Shapes -->
+  <button class="tool-btn" id="btn-shapes" title="Hình học & Nét đứt (Toán 11)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polygon points="12 2 2 22 22 22 12 2"/></svg>
+  </button>
+  <button class="tool-btn" data-tool="text" title="Chèn văn bản / Công thức (T)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="4 7 4 4 20 4 20 7"/><line x1="9" y1="20" x2="15" y2="20"/><line x1="12" y1="4" x2="12" y2="20"/></svg>
+  </button>
+  <button class="tool-btn" id="btn-image" title="Chèn ảnh đề bài">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg>
+  </button>
+  <input type="file" id="image-loader" accept="image/*" style="display:none" />
+
+  <div class="divider"></div>
+
+  <!-- Colors -->
+  <div class="color-group">
+    <div class="color-dot active" style="background:#111827;" data-color="#111827" title="Đen"></div>
+    <div class="color-dot" style="background:#2563eb;" data-color="#2563eb" title="Xanh dương"></div>
+    <div class="color-dot" style="background:#dc2626;" data-color="#dc2626" title="Đỏ"></div>
+    <div class="color-dot" style="background:#16a34a;" data-color="#16a34a" title="Xanh lá"></div>
+    <div class="color-dot" style="background:#f59e0b;" data-color="#f59e0b" title="Vàng cam"></div>
+    <div class="color-dot" style="background:#ffffff; border:1px solid #ccc;" data-color="#ffffff" title="Trắng (Dùng cho bảng đen)"></div>
+    <input type="color" id="customColor" value="#8b5cf6" title="Chọn màu khác" />
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Stroke Width -->
+  <div class="size-group">
+    <button class="size-btn active" data-size="2.5" title="Nét mảnh"><div class="size-circle" style="width:4px;height:4px;"></div></button>
+    <button class="size-btn" data-size="5" title="Nét vừa"><div class="size-circle" style="width:8px;height:8px;"></div></button>
+    <button class="size-btn" data-size="10" title="Nét đậm"><div class="size-circle" style="width:13px;height:13px;"></div></button>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- Paper Background & Actions -->
+  <button class="tool-btn" id="btn-paper" title="Đổi nền giấy / Bảng đen">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="9" y1="3" x2="9" y2="21"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+  </button>
+  <button class="tool-btn" id="btn-undo" title="Hoàn tác (Ctrl+Z)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 7v6h6"/><path d="M21 17a9 9 0 0 0-9-9 9 9 0 0 0-6 2.3L3 13"/></svg>
+  </button>
+  <button class="tool-btn" id="btn-redo" title="Làm lại (Ctrl+Y)">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 7v6h-6"/><path d="M3 17a9 9 0 0 1 9-9 9 9 0 0 1 6 2.3l3 2.7"/></svg>
+  </button>
+  <button class="tool-btn" id="btn-file" title="Lưu / Xuất file">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+  </button>
+  <button class="tool-btn danger" id="btn-clear" title="Xóa sạch trang hiện tại">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+  </button>
+</div>
+
+<!-- Popover: Shapes Menu -->
+<div class="popover" id="popover-shapes">
+  <button class="pop-item" data-shape="line">📏 Đoạn thẳng nét liền</button>
+  <button class="pop-item" data-shape="dashed">┄ Đoạn nét đứt (Hình không gian)</button>
+  <button class="pop-item" data-shape="arrow">↗️ Mũi tên / Vectơ</button>
+  <button class="pop-item" data-shape="rect">▭ Hình chữ nhật / Bình hành</button>
+  <button class="pop-item" data-shape="circle">◯ Hình tròn / Elip đáy</button>
+  <button class="pop-item" data-shape="triangle">△ Hình tam giác / Hình chóp</button>
+  <button class="pop-item" data-shape="axes2d">➕ Hệ trục tọa độ Oxy</button>
+  <button class="pop-item" data-shape="axes3d">🧊 Hệ trục không gian Oxyz</button>
+</div>
+
+<!-- Popover: Paper Background -->
+<div class="popover" id="popover-paper">
+  <button class="pop-item active" data-paper="grid">▦ Giấy ô ly vuông (Toán học)</button>
+  <button class="pop-item" data-paper="dots">⁙ Giấy chấm bi (Dot Grid)</button>
+  <button class="pop-item" data-paper="lined">☰ Giấy kẻ ngang</button>
+  <button class="pop-item" data-paper="blank">⬜ Giấy trắng trơn</button>
+  <button class="pop-item" data-paper="dark">⬛ Bảng đen (Chống mỏi mắt)</button>
+</div>
+
+<!-- Popover: Export / Save -->
+<div class="popover" id="popover-file">
+  <button class="pop-item" id="export-png">🖼️ Xuất trang hiện tại ra ảnh (.PNG)</button>
+  <button class="pop-item" id="save-json">💾 Lưu file bài học (.JSON)</button>
+  <button class="pop-item" id="load-json">📂 Mở file bài học (.JSON)</button>
+  <input type="file" id="json-loader" accept=".json" style="display:none" />
+</div>
+
+<!-- Selection Floating Actions -->
+<div id="selection-actions">
+  <span style="font-size:13px; font-weight:600;">Đang chọn đối tượng:</span>
+  <button class="badge-btn" id="sel-duplicate">📑 Nhân bản</button>
+  <button class="badge-btn" id="sel-delete" style="color:#ef4444;">🗑️ Xóa</button>
+</div>
+
+<!-- Floating Text Input -->
+<input type="text" id="text-input-overlay" placeholder="Nhập chữ hoặc công thức..." />
+
+<!-- Bottom Bar -->
+<div class="bottom-bar">
+  <button class="badge-btn" id="prev-page">◀</button>
+  <span id="page-indicator" style="font-weight:600;">Trang 1 / 1</span>
+  <button class="badge-btn" id="next-page">▶</button>
+  <button class="badge-btn" id="add-page" title="Thêm trang mới">+ Trang</button>
+  <div class="divider" style="height:18px;"></div>
+  <button class="badge-btn" id="zoom-out">-</button>
+  <span id="zoom-level" style="min-width:44px; text-align:center; font-weight:600;">100%</span>
+  <button class="badge-btn" id="zoom-in">+</button>
+  <button class="badge-btn" id="zoom-reset" title="Về giữa bảng">1:1</button>
+</div>
+
+<script>
+  const canvas = document.getElementById('board');
+  const ctx = canvas.getContext('2d');
+  const textOverlay = document.getElementById('text-input-overlay');
+  const selActions = document.getElementById('selection-actions');
+
+  // Application State
+  let pages = [{ elements: [], paper: 'grid' }];
+  let currentPageIndex = 0;
+  let undoStack = [[]];
+  let redoStack = [[]];
+
+  let currentTool = 'pen';
+  let currentShape = 'line';
+  let currentColor = '#111827';
+  let currentSize = 2.5;
+
+  // Viewport Transform
+  let scale = 1;
+  let offsetX = 0;
+  let offsetY = 0;
+
+  // Interaction State
+  let isDrawing = false;
+  let isPanning = false;
+  let spacePressed = false;
+  let startX = 0, startY = 0;
+  let lastPanX = 0, lastPanY = 0;
+  let currentElement = null;
+  let selectedElementIndex = -1;
+  let isDraggingSelection = false;
+  let dragStartWorld = { x: 0, y: 0 };
+
+  function resizeCanvas() {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = window.innerWidth * dpr;
+    canvas.height = window.innerHeight * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    render();
+  }
+  window.addEventListener('resize', resizeCanvas);
+
+  // Coordinate Helpers
+  function screenToWorld(sx, sy) {
+    return {
+      x: (sx - offsetX) / scale,
+      y: (sy - offsetY) / scale
+    };
+  }
+
+  function getCurrentPage() {
+    return pages[currentPageIndex];
+  }
+
+  function saveHistory() {
+    const snapshot = JSON.parse(JSON.stringify(getCurrentPage().elements.map(el => {
+      if (el.type === 'image') {
+        return { ...el, imgObj: undefined };
+      }
+      return el;
+    })));
+    undoStack[currentPageIndex].push(snapshot);
+    if (undoStack[currentPageIndex].length > 40) undoStack[currentPageIndex].shift();
+    redoStack[currentPageIndex] = [];
+  }
+
+  function restoreImages(elements) {
+    elements.forEach(el => {
+      if (el.type === 'image' && el.src && !el.imgObj) {
+        const img = new Image();
+        img.onload = () => { el.imgObj = img; render(); };
+        img.src = el.src;
+      }
+    });
+  }
+
+  // Background Rendering
+  function drawBackground(paper) {
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    const isDark = paper === 'dark';
+
+    document.body.classList.toggle('dark-ui', isDark);
+    ctx.fillStyle = isDark ? '#18181b' : '#ffffff';
+    ctx.fillRect(0, 0, w, h);
+
+    if (paper === 'blank') return;
+
+    const step = 32 * scale;
+    if (step < 6) return;
+
+    const startX = offsetX % step;
+    const startY = offsetY % step;
+
+    if (paper === 'grid' || isDark) {
+      ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(37, 99, 235, 0.12)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let x = startX; x < w; x += step) {
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, h);
+      }
+      for (let y = startY; y < h; y += step) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+      }
+      ctx.stroke();
+    } else if (paper === 'lined') {
+      ctx.strokeStyle = 'rgba(37, 99, 235, 0.16)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      for (let y = startY; y < h; y += step) {
+        ctx.moveTo(0, y);
+        ctx.lineTo(w, y);
+      }
+      ctx.stroke();
+    } else if (paper === 'dots') {
+      ctx.fillStyle = 'rgba(100, 116, 139, 0.35)';
+      for (let x = startX; x < w; x += step) {
+        for (let y = startY; y < h; y += step) {
+          ctx.beginPath();
+          ctx.arc(x, y, 1.3, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    }
+  }
+
+  // Draw Single Element
+  function drawElement(el, isSelected = false) {
+    ctx.save();
+    ctx.strokeStyle = el.color;
+    ctx.fillStyle = el.color;
+    ctx.lineWidth = el.size;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+
+    if (el.type === 'highlighter') {
+      ctx.globalAlpha = 0.32;
+      ctx.lineWidth = el.size * 3.5;
+    }
+
+    if (el.type === 'pen' || el.type === 'highlighter') {
+      if (!el.points || el.points.length === 0) return;
+      ctx.beginPath();
+      ctx.moveTo(el.points[0].x, el.points[0].y);
+      for (let i = 1; i < el.points.length; i++) {
+        const midX = (el.points[i - 1].x + el.points[i].x) / 2;
+        const midY = (el.points[i - 1].y + el.points[i].y) / 2;
+        ctx.quadraticCurveTo(el.points[i - 1].x, el.points[i - 1].y, midX, midY);
+      }
+      ctx.lineTo(el.points[el.points.length - 1].x, el.points[el.points.length - 1].y);
+      ctx.stroke();
+    } else if (el.type === 'shape') {
+      const { x1, y1, x2, y2, shape } = el;
+      ctx.beginPath();
+      if (shape === 'dashed') {
+        ctx.setLineDash([8, 8]);
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      } else if (shape === 'line') {
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(x2, y2);
+        ctx.stroke();
+      } else if (shape === 'arrow') {
+        drawArrow(ctx, x1, y1, x2, y2, el.size);
+      } else if (shape === 'rect') {
+        ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
+      } else if (shape === 'circle') {
+        const rx = Math.abs(x2 - x1) / 2;
+        const ry = Math.abs(y2 - y1) / 2;
+        const cx = (x1 + x2) / 2;
+        const cy = (y1 + y2) / 2;
+        ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+        ctx.stroke();
+      } else if (shape === 'triangle') {
+        ctx.moveTo((x1 + x2) / 2, y1);
+        ctx.lineTo(x1, y2);
+        ctx.lineTo(x2, y2);
+        ctx.closePath();
+        ctx.stroke();
+      } else if (shape === 'axes2d') {
+        const cx = (x1 + x2) / 2;
+        const cy = (y1 + y2) / 2;
+        drawArrow(ctx, x1, cy, x2, cy, el.size);
+        drawArrow(ctx, cx, y2, cx, y1, el.size);
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText('x', x2 - 10, cy + 20);
+        ctx.fillText('y', cx + 10, y1 + 14);
+        ctx.fillText('O', cx - 18, cy + 18);
+      } else if (shape === 'axes3d') {
+        const ox = x1 + (x2 - x1) * 0.35;
+        const oy = y1 + (y2 - y1) * 0.65;
+        drawArrow(ctx, ox, oy, x2, oy, el.size); // Oy
+        drawArrow(ctx, ox, oy, ox, y1, el.size); // Oz
+        drawArrow(ctx, ox, oy, x1, y2, el.size); // Ox
+        ctx.font = 'bold 16px sans-serif';
+        ctx.fillText('y', x2 - 8, oy + 20);
+        ctx.fillText('z', ox + 10, y1 + 14);
+        ctx.fillText('x', x1 - 4, y2 + 16);
+        ctx.fillText('O', ox - 18, oy - 6);
+      }
+    } else if (el.type === 'text') {
+      ctx.font = `${Math.max(18, el.size * 6)}px sans-serif`;
+      ctx.fillText(el.text, el.x, el.y);
+    } else if (el.type === 'image' && el.imgObj) {
+      ctx.drawImage(el.imgObj, el.x, el.y, el.w, el.h);
+    }
+
+    if (isSelected) {
+      const box = getBoundingBox(el);
+      if (box) {
+        ctx.globalAlpha = 1;
+        ctx.setLineDash([5, 5]);
+        ctx.strokeStyle = '#2563eb';
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(box.x - 6, box.y - 6, box.w + 12, box.h + 12);
+      }
+    }
+    ctx.restore();
+  }
+
+  function drawArrow(ctx, fromx, fromy, tox, toy, size) {
+    const headlen = 10 + size * 1.5;
+    const dx = tox - fromx;
+    const dy = toy - fromy;
+    const angle = Math.atan2(dy, dx);
+    ctx.beginPath();
+    ctx.moveTo(fromx, fromy);
+    ctx.lineTo(tox, toy);
+    ctx.lineTo(tox - headlen * Math.cos(angle - Math.PI / 6), toy - headlen * Math.sin(angle - Math.PI / 6));
+    ctx.moveTo(tox, toy);
+    ctx.lineTo(tox - headlen * Math.cos(angle + Math.PI / 6), toy - headlen * Math.sin(angle + Math.PI / 6));
+    ctx.stroke();
+  }
+
+  function render() {
+    const page = getCurrentPage();
+    drawBackground(page.paper);
+
+    ctx.save();
+    ctx.translate(offsetX, offsetY);
+    ctx.scale(scale, scale);
+
+    page.elements.forEach((el, idx) => {
+      drawElement(el, idx === selectedElementIndex);
+    });
+
+    if (currentElement) {
+      drawElement(currentElement, false);
+    }
+
+    ctx.restore();
+    document.getElementById('zoom-level').textContent = Math.round(scale * 100) + '%';
+    document.getElementById('page-indicator').textContent = `Trang ${currentPageIndex + 1} / ${pages.length}`;
+  }
+
+  // Bounding Box & Hit Detection (For Smart Stroke Eraser & Select)
+  function getBoundingBox(el) {
+    if (el.type === 'pen' || el.type === 'highlighter') {
+      let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
+      el.points.forEach(p => {
+        if (p.x < minX) minX = p.x;
+        if (p.y < minY) minY = p.y;
+        if (p.x > maxX) maxX = p.x;
+        if (p.y > maxY) maxY = p.y;
+      });
+      return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
+    } else if (el.type === 'shape') {
+      return {
+        x: Math.min(el.x1, el.x2),
+        y: Math.min(el.y1, el.y2),
+        w: Math.abs(el.x2 - el.x1),
+        h: Math.abs(el.y2 - el.y1)
+      };
+    } else if (el.type === 'text') {
+      const fontSize = Math.max(18, el.size * 6);
+      return { x: el.x, y: el.y - fontSize, w: el.text.length * fontSize * 0.55, h: fontSize * 1.2 };
+    } else if (el.type === 'image') {
+      return { x: el.x, y: el.y, w: el.w, h: el.h };
+    }
+    return null;
+  }
+
+  function hitTest(el, wx, wy, tolerance = 12) {
+    if (el.type === 'pen' || el.type === 'highlighter') {
+      return el.points.some(p => Math.hypot(p.x - wx, p.y - wy) <= tolerance + el.size);
+    }
+    const box = getBoundingBox(el);
+    if (!box) return false;
+    return wx >= box.x - tolerance && wx <= box.x + box.w + tolerance &&
+           wy >= box.y - tolerance && wy <= box.y + box.h + tolerance;
+  }
+
+  function eraseAt(wx, wy) {
+    const els = getCurrentPage().elements;
+    for (let i = els.length - 1; i >= 0; i--) {
+      if (hitTest(els[i], wx, wy, 14 / scale)) {
+        saveHistory();
+        els.splice(i, 1);
+        render();
+        break;
+      }
+    }
+  }
+
+  function moveElement(el, dx, dy) {
+    if (el.type === 'pen' || el.type === 'highlighter') {
+      el.points.forEach(p => { p.x += dx; p.y += dy; });
+    } else if (el.type === 'shape') {
+      el.x1 += dx; el.y1 += dy; el.x2 += dx; el.y2 += dy;
+    } else if (el.type === 'text' || el.type === 'image') {
+      el.x += dx; el.y += dy;
+    }
+  }
+
+  // Pointer Events
+  canvas.addEventListener('pointerdown', (e) => {
+    closeAllPopovers();
+    const rect = canvas.getBoundingClientRect();
+    const sx = e.clientX - rect.left;
+    const sy = e.clientY - rect.top;
+    const world = screenToWorld(sx, sy);
+
+    if (e.button === 1 || spacePressed || currentTool === 'pan') {
+      isPanning = true;
+      lastPanX = e.clientX;
+      lastPanY = e.clientY;
+      canvas.style.cursor = 'grabbing';
+      return;
+    }
+
+    if (currentTool === 'text') {
+      openTextInput(e.clientX, e.clientY, world.x, world.y);
+      return;
+    }
+
+    if (currentTool === 'select') {
+      const els = getCurrentPage().elements;
+      selectedElementIndex = -1;
+      for (let i = els.length - 1; i >= 0; i--) {
+        if (hitTest(els[i], world.x, world.y, 10 / scale)) {
+          selectedElementIndex = i;
+          isDraggingSelection = true;
+          dragStartWorld = world;
+          saveHistory();
+          break;
+        }
+      }
+      selActions.style.display = selectedElementIndex !== -1 ? 'flex' : 'none';
+      render();
+      return;
+    }
+
+    if (currentTool === 'eraser') {
+      isDrawing = true;
+      eraseAt(world.x, world.y);
+      return;
+    }
+
+    isDrawing = true;
+    startX = world.x;
+    startY = world.y;
+
+    if (currentTool === 'pen' || currentTool === 'highlighter') {
+      currentElement = {
+        type: currentTool,
+        color: currentColor,
+        size: currentSize,
+        points: [{ x: world.x, y: world.y }]
+      };
+    } else if (currentTool === 'shape') {
+      currentElement = {
+        type: 'shape',
+        shape: currentShape,
+        color: currentColor,
+        size: currentSize,
+        x1: world.x,
+        y1: world.y,
+        x2: world.x,
+        y2: world.y
+      };
+    }
+  });
+
+  canvas.addEventListener('pointermove', (e) => {
+    if (isPanning) {
+      offsetX += e.clientX - lastPanX;
+      offsetY += e.clientY - lastPanY;
+      lastPanX = e.clientX;
+      lastPanY = e.clientY;
+      render();
+      return;
+    }
+
+    const rect = canvas.getBoundingClientRect();
+    const world = screenToWorld(e.clientX - rect.left, e.clientY - rect.top);
+
+    if (isDraggingSelection && selectedElementIndex !== -1) {
+      const dx = world.x - dragStartWorld.x;
+      const dy = world.y - dragStartWorld.y;
+      moveElement(getCurrentPage().elements[selectedElementIndex], dx, dy);
+      dragStartWorld = world;
+      render();
+      return;
+    }
+
+    if (!isDrawing) return;
+
+    if (currentTool === 'eraser') {
+      eraseAt(world.x, world.y);
+      return;
+    }
+
+    if (currentElement) {
+      if (currentElement.type === 'pen' || currentElement.type === 'highlighter') {
+        currentElement.points.push({ x: world.x, y: world.y });
+      } else if (currentElement.type === 'shape') {
+        let tx = world.x;
+        let ty = world.y;
+        // Shift snaps to straight horizontal/vertical/45 deg
+        if (e.shiftKey) {
+          const dx = Math.abs(tx - startX);
+          const dy = Math.abs(ty - startY);
+          if (dx > dy * 2) ty = startY;
+          else if (dy > dx * 2) tx = startX;
+        }
+        currentElement.x2 = tx;
+        currentElement.y2 = ty;
+      }
+      render();
+    }
+  });
+
+  window.addEventListener('pointerup', () => {
+    if (isPanning) {
+      isPanning = false;
+      canvas.style.cursor = spacePressed || currentTool === 'pan' ? 'grab' : 'crosshair';
+    }
+    if (isDraggingSelection) {
+      isDraggingSelection = false;
+    }
+    if (isDrawing && currentElement) {
+      saveHistory();
+      getCurrentPage().elements.push(currentElement);
+      currentElement = null;
+      render();
+    }
+    isDrawing = false;
+  });
+
+  // Mouse Wheel Zoom
+  canvas.addEventListener('wheel', (e) => {
+    e.preventDefault();
+    const zoomFactor = e.deltaY < 0 ? 1.1 : 0.9;
+    const newScale = Math.min(Math.max(scale * zoomFactor, 0.2), 4);
+    const rect = canvas.getBoundingClientRect();
+    const mx = e.clientX - rect.left;
+    const my = e.clientY - rect.top;
+
+    offsetX = mx - (mx - offsetX) * (newScale / scale);
+    offsetY = my - (my - offsetY) * (newScale / scale);
+    scale = newScale;
+    render();
+  }, { passive: false });
+
+  // Text Input Overlay
+  let pendingTextPos = { x: 0, y: 0 };
+  function openTextInput(sx, sy, wx, wy) {
+    pendingTextPos = { x: wx, y: wy + 20 };
+    textOverlay.style.left = sx + 'px';
+    textOverlay.style.top = sy + 'px';
+    textOverlay.style.color = currentColor;
+    textOverlay.style.display = 'block';
+    textOverlay.value = '';
+    setTimeout(() => textOverlay.focus(), 10);
+  }
+
+  function commitText() {
+    const val = textOverlay.value.trim();
+    if (val) {
+      saveHistory();
+      getCurrentPage().elements.push({
+        type: 'text',
+        text: val,
+        x: pendingTextPos.x,
+        y: pendingTextPos.y,
+        color: currentColor,
+        size: currentSize
+      });
+      render();
+    }
+    textOverlay.style.display = 'none';
+  }
+
+  textOverlay.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') commitText();
+    if (e.key === 'Escape') textOverlay.style.display = 'none';
+  });
+  textOverlay.addEventListener('blur', commitText);
+
+  // Toolbar UI Controls
+  function setActiveTool(tool) {
+    currentTool = tool;
+    selectedElementIndex = -1;
+    selActions.style.display = 'none';
+    document.querySelectorAll('.tool-btn[data-tool]').forEach(b => {
+      b.classList.toggle('active', b.dataset.tool === tool);
+    });
+    document.getElementById('btn-shapes').classList.toggle('active', tool === 'shape');
+    canvas.style.cursor = tool === 'pan' ? 'grab' : (tool === 'select' ? 'default' : 'crosshair');
+    render();
+  }
+
+  document.querySelectorAll('.tool-btn[data-tool]').forEach(btn => {
+    btn.addEventListener('click', () => setActiveTool(btn.dataset.tool));
+  });
+
+  // Popovers
+  function togglePopover(id, anchorBtn) {
+    const pop = document.getElementById(id);
+    const isOpen = pop.classList.contains('open');
+    closeAllPopovers();
+    if (!isOpen) {
+      const rect = anchorBtn.getBoundingClientRect();
+      pop.style.left = Math.min(rect.left, window.innerWidth - 260) + 'px';
+      pop.classList.add('open');
+    }
+  }
+  function closeAllPopovers() {
+    document.querySelectorAll('.popover').forEach(p => p.classList.remove('open'));
+  }
+
+  document.getElementById('btn-shapes').addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePopover('popover-shapes', e.currentTarget);
+  });
+
+  document.querySelectorAll('#popover-shapes .pop-item').forEach(item => {
+    item.addEventListener('click', () => {
+      currentShape = item.dataset.shape;
+      document.querySelectorAll('#popover-shapes .pop-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      setActiveTool('shape');
+      closeAllPopovers();
+    });
+  });
+
+  document.getElementById('btn-paper').addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePopover('popover-paper', e.currentTarget);
+  });
+
+  document.querySelectorAll('#popover-paper .pop-item').forEach(item => {
+    item.addEventListener('click', () => {
+      const paper = item.dataset.paper;
+      getCurrentPage().paper = paper;
+      document.querySelectorAll('#popover-paper .pop-item').forEach(i => i.classList.remove('active'));
+      item.classList.add('active');
+      if (paper === 'dark' && currentColor === '#111827') {
+        currentColor = '#ffffff';
+        document.querySelector('.color-dot[data-color="#ffffff"]').click();
+      } else if (paper !== 'dark' && currentColor === '#ffffff') {
+        currentColor = '#111827';
+        document.querySelector('.color-dot[data-color="#111827"]').click();
+      }
+      render();
+      closeAllPopovers();
+    });
+  });
+
+  document.getElementById('btn-file').addEventListener('click', (e) => {
+    e.stopPropagation();
+    togglePopover('popover-file', e.currentTarget);
+  });
+
+  // Colors & Sizes
+  document.querySelectorAll('.color-dot').forEach(dot => {
+    dot.addEventListener('click', () => {
+      document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+      dot.classList.add('active');
+      currentColor = dot.dataset.color;
+    });
+  });
+
+  document.getElementById('customColor').addEventListener('input', (e) => {
+    document.querySelectorAll('.color-dot').forEach(d => d.classList.remove('active'));
+    currentColor = e.target.value;
+  });
+
+  document.querySelectorAll('.size-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.size-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentSize = parseFloat(btn.dataset.size);
+    });
+  });
+
+  // Image Import
+  document.getElementById('btn-image').addEventListener('click', () => {
+    document.getElementById('image-loader').click();
+  });
+
+  document.getElementById('image-loader').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const img = new Image();
+      img.onload = () => {
+        const maxW = 420;
+        const ratio = img.width > maxW ? maxW / img.width : 1;
+        const center = screenToWorld(window.innerWidth / 2, window.innerHeight / 2);
+        saveHistory();
+        getCurrentPage().elements.push({
+          type: 'image',
+          src: ev.target.result,
+          imgObj: img,
+          x: center.x - (img.width * ratio) / 2,
+          y: center.y - (img.height * ratio) / 2,
+          w: img.width * ratio,
+          h: img.height * ratio
+        });
+        setActiveTool('select');
+        selectedElementIndex = getCurrentPage().elements.length - 1;
+        selActions.style.display = 'flex';
+        render();
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  });
+
+  // Selection Duplicate & Delete
+  document.getElementById('sel-duplicate').addEventListener('click', () => {
+    if (selectedElementIndex === -1) return;
+    const orig = getCurrentPage().elements[selectedElementIndex];
+    const copy = JSON.parse(JSON.stringify({ ...orig, imgObj: undefined }));
+    if (orig.type === 'image') copy.imgObj = orig.imgObj;
+    moveElement(copy, 25, 25);
+    saveHistory();
+    getCurrentPage().elements.push(copy);
+    selectedElementIndex = getCurrentPage().elements.length - 1;
+    render();
+  });
+
+  document.getElementById('sel-delete').addEventListener('click', () => {
+    if (selectedElementIndex === -1) return;
+    saveHistory();
+    getCurrentPage().elements.splice(selectedElementIndex, 1);
+    selectedElementIndex = -1;
+    selActions.style.display = 'none';
+    render();
+  });
+
+  // Undo / Redo / Clear
+  function undo() {
+    const stack = undoStack[currentPageIndex];
+    if (stack.length === 0) return;
+    const currentSnap = JSON.parse(JSON.stringify(getCurrentPage().elements.map(el => ({ ...el, imgObj: undefined }))));
+    redoStack[currentPageIndex].push(currentSnap);
+    const prev = stack.pop();
+    restoreImages(prev);
+    getCurrentPage().elements = prev;
+    selectedElementIndex = -1;
+    selActions.style.display = 'none';
+    render();
+  }
+
+  function redo() {
+    const stack = redoStack[currentPageIndex];
+    if (stack.length === 0) return;
+    const currentSnap = JSON.parse(JSON.stringify(getCurrentPage().elements.map(el => ({ ...el, imgObj: undefined }))));
+    undoStack[currentPageIndex].push(currentSnap);
+    const next = stack.pop();
+    restoreImages(next);
+    getCurrentPage().elements = next;
+    render();
+  }
+
+  document.getElementById('btn-undo').addEventListener('click', undo);
+  document.getElementById('btn-redo').addEventListener('click', redo);
+
+  document.getElementById('btn-clear').addEventListener('click', () => {
+    if (confirm('Bạn có chắc muốn xóa sạch toàn bộ nội dung trên trang này?')) {
+      saveHistory();
+      getCurrentPage().elements = [];
+      selectedElementIndex = -1;
+      selActions.style.display = 'none';
+      render();
+    }
+  });
+
+  // Pagination & Zoom Buttons
+  document.getElementById('add-page').addEventListener('click', () => {
+    pages.push({ elements: [], paper: getCurrentPage().paper });
+    undoStack.push([]);
+    redoStack.push([]);
+    currentPageIndex = pages.length - 1;
+    selectedElementIndex = -1;
+    selActions.style.display = 'none';
+    render();
+  });
+
+  document.getElementById('prev-page').addEventListener('click', () => {
+    if (currentPageIndex > 0) {
+      currentPageIndex--;
+      selectedElementIndex = -1;
+      selActions.style.display = 'none';
+      render();
+    }
+  });
+
+  document.getElementById('next-page').addEventListener('click', () => {
+    if (currentPageIndex < pages.length - 1) {
+      currentPageIndex++;
+      selectedElementIndex = -1;
+      selActions.style.display = 'none';
+      render();
+    }
+  });
+
+  document.getElementById('zoom-in').addEventListener('click', () => { scale = Math.min(scale * 1.2, 4); render(); });
+  document.getElementById('zoom-out').addEventListener('click', () => { scale = Math.max(scale / 1.2, 0.2); render(); });
+  document.getElementById('zoom-reset').addEventListener('click', () => { scale = 1; offsetX = 0; offsetY = 0; render(); });
+
+  // Export PNG & Save/Load JSON
+  document.getElementById('export-png').addEventListener('click', () => {
+    closeAllPopovers();
+    selectedElementIndex = -1;
+    render();
+    const link = document.createElement('a');
+    link.download = `bai-hoc-toan-trang-${currentPageIndex + 1}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  });
+
+  document.getElementById('save-json').addEventListener('click', () => {
+    closeAllPopovers();
+    const cleanPages = pages.map(p => ({
+      paper: p.paper,
+      elements: p.elements.map(el => ({ ...el, imgObj: undefined }))
+    }));
+    const blob = new Blob([JSON.stringify(cleanPages)], { type: 'application/json' });
+    const link = document.createElement('a');
+    link.download = 'scrble-math-notes.json';
+    link.href = URL.createObjectURL(blob);
+    link.click();
+  });
+
+  document.getElementById('load-json').addEventListener('click', () => {
+    closeAllPopovers();
+    document.getElementById('json-loader').click();
+  });
+
+  document.getElementById('json-loader').addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const loaded = JSON.parse(ev.target.result);
+        if (Array.isArray(loaded) && loaded.length > 0) {
+          pages = loaded;
+          pages.forEach(p => restoreImages(p.elements));
+          undoStack = pages.map(() => []);
+          redoStack = pages.map(() => []);
+          currentPageIndex = 0;
+          render();
+        }
+      } catch (err) {
+        alert('File bài học không hợp lệ!');
+      }
+    };
+    reader.readAsText(file);
+  });
+
+  // Keyboard Shortcuts
+  window.addEventListener('keydown', (e) => {
+    if (document.activeElement === textOverlay) return;
+    if (e.code === 'Space') {
+      spacePressed = true;
+      canvas.style.cursor = 'grab';
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); undo(); }
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); redo(); }
+    if (e.key === 'Delete' || e.key === 'Backspace') {
+      if (selectedElementIndex !== -1) document.getElementById('sel-delete').click();
+    }
+    if (e.key.toLowerCase() === 'p') setActiveTool('pen');
+    if (e.key.toLowerCase() === 'h') setActiveTool('highlighter');
+    if (e.key.toLowerCase() === 'e') setActiveTool('eraser');
+    if (e.key.toLowerCase() === 'v') setActiveTool('select');
+    if (e.key.toLowerCase() === 't') setActiveTool('text');
+  });
+
+  window.addEventListener('keyup', (e) => {
+    if (e.code === 'Space') {
+      spacePressed = false;
+      canvas.style.cursor = currentTool === 'pan' ? 'grab' : 'crosshair';
+    }
+  });
+
+  // Init
+  resizeCanvas();
+</script>
+</body>
+</html>
