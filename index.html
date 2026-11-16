@@ -3,14 +3,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <title>Scrble Ink - Web Edition</title>
+  <title>Scrble Ink - Math Edition</title>
   <style>
     :root {
       --bar-bg: #ffffff;
       --bar-border: #e2e8f0;
       --icon-color: #1e293b;
       --icon-hover: #f1f5f9;
-      --active-pill: #0f3d68;
+      --active-bg: #e2e8f0;
       --canvas-bg: #ffffff;
       --text-color: #0f172a;
     }
@@ -20,7 +20,7 @@
       --bar-border: #334155;
       --icon-color: #f8fafc;
       --icon-hover: #334155;
-      --active-pill: #2563eb;
+      --active-bg: #475569;
       --canvas-bg: #121212;
       --text-color: #f8fafc;
     }
@@ -42,81 +42,53 @@
       color: var(--text-color);
     }
 
-    /* Scrble Ink Top Bar */
+    /* Scrble Ink Top Header */
     .scrble-header {
       position: fixed;
       top: 0;
       left: 0;
       right: 0;
-      height: 52px;
+      height: 48px;
       background: var(--bar-bg);
       border-bottom: 1px solid var(--bar-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 12px;
+      padding: 0 10px;
       z-index: 1000;
-      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
     }
 
     .nav-group {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 3px;
     }
 
     .icon-btn {
-      width: 36px;
-      height: 36px;
+      width: 34px;
+      height: 34px;
       border: none;
       background: transparent;
       color: var(--icon-color);
-      border-radius: 8px;
+      border-radius: 6px;
       display: flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: background 0.12s, transform 0.1s;
+      transition: background 0.12s;
     }
 
-    .icon-btn:hover {
-      background: var(--icon-hover);
-    }
-
-    .icon-btn:active {
-      transform: scale(0.94);
-    }
-
-    .icon-btn.active-tool {
-      background: var(--active-pill);
-      color: #ffffff;
-      border-radius: 50%;
-    }
+    .icon-btn:hover { background: var(--icon-hover); }
+    .icon-btn.active { background: var(--active-bg); }
 
     .icon-btn svg {
-      width: 20px;
-      height: 20px;
+      width: 18px;
+      height: 18px;
       stroke-width: 1.8;
     }
 
-    .page-counter {
-      font-size: 13px;
-      font-weight: 600;
-      color: var(--icon-color);
-      padding: 4px 10px;
-      border-radius: 6px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .page-counter:hover {
-      background: var(--icon-hover);
-    }
-
-    /* Center Red Ring (Scrble Signature) */
-    .red-ring-wrapper {
+    /* Center Signature Scrble Black Ring */
+    .center-ring-box {
       position: absolute;
       left: 50%;
       transform: translateX(-50%);
@@ -125,136 +97,44 @@
       justify-content: center;
     }
 
-    .red-ring-btn {
-      width: 34px;
-      height: 34px;
+    .scrble-ring {
+      width: 30px;
+      height: 30px;
       border-radius: 50%;
-      border: 2.5px solid #dc2626;
-      background: transparent;
+      border: 2px solid #0f172a;
+      background: #0f172a;
+      color: #ffffff;
       cursor: pointer;
       display: flex;
       align-items: center;
       justify-content: center;
-      transition: all 0.15s;
+      transition: transform 0.15s;
     }
+    body.dark-mode .scrble-ring { border-color: #f8fafc; background: #f8fafc; color: #121212; }
+    .scrble-ring:hover { transform: scale(1.08); }
 
-    .red-ring-btn:hover {
-      background: rgba(220, 38, 38, 0.08);
-      transform: scale(1.06);
-    }
-
-    .red-ring-btn.eraser-active {
-      background: #dc2626;
-    }
-
-    .red-ring-btn.eraser-active::after {
-      content: "";
-      width: 10px;
-      height: 10px;
-      background: #ffffff;
-      border-radius: 50%;
-    }
-
-    /* Quick Colors & Sizes on Right */
-    .quick-palette {
+    /* Color Dots Palette */
+    .color-dots {
       display: flex;
       align-items: center;
-      gap: 10px;
-      margin-right: 8px;
+      gap: 6px;
+      margin: 0 6px;
     }
 
-    .q-color {
-      width: 12px;
-      height: 12px;
+    .dot {
+      width: 14px;
+      height: 14px;
       border-radius: 50%;
       cursor: pointer;
       transition: transform 0.12s;
-      position: relative;
     }
+    .dot:hover { transform: scale(1.25); }
+    .dot.active { transform: scale(1.35); box-shadow: 0 0 0 2px var(--bar-bg), 0 0 0 3.5px var(--icon-color); }
 
-    .q-color:hover {
-      transform: scale(1.3);
-    }
-
-    .q-color.active {
-      transform: scale(1.35);
-      box-shadow: 0 0 0 2px var(--bar-bg), 0 0 0 3.5px var(--icon-color);
-    }
-
-    .quick-sizes {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      margin: 0 10px;
-    }
-
-    .q-size {
-      border-radius: 50%;
-      background: var(--icon-color);
-      cursor: pointer;
-      opacity: 0.45;
-      transition: all 0.12s;
-    }
-
-    .q-size:hover, .q-size.active {
-      opacity: 1;
-      transform: scale(1.15);
-    }
-
-    /* Dropdown Popovers */
-    .dropdown-menu {
-      position: fixed;
-      top: 56px;
-      background: var(--bar-bg);
-      border: 1px solid var(--bar-border);
-      border-radius: 10px;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.12);
-      padding: 6px;
-      display: none;
-      flex-direction: column;
-      gap: 2px;
-      z-index: 1001;
-      min-width: 210px;
-    }
-
-    .dropdown-menu.show {
-      display: flex;
-    }
-
-    .menu-item {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 8px 12px;
-      border: none;
-      background: transparent;
-      color: var(--icon-color);
-      font-size: 13.5px;
-      border-radius: 6px;
-      cursor: pointer;
-      text-align: left;
-    }
-
-    .menu-item:hover {
-      background: var(--icon-hover);
-    }
-
-    .menu-item.selected {
-      background: rgba(37, 99, 235, 0.12);
-      color: #2563eb;
-      font-weight: 600;
-    }
-
-    .menu-sep {
-      height: 1px;
-      background: var(--bar-border);
-      margin: 4px 0;
-    }
-
-    /* Canvas Area */
+    /* Workspace */
     #workspace {
       position: fixed;
-      top: 52px;
+      top: 48px;
       left: 0;
       right: 0;
       bottom: 0;
@@ -269,258 +149,227 @@
       cursor: crosshair;
     }
 
-    /* Floating Text Box */
-    #text-editor {
+    /* Image Transform Floating Box */
+    #img-transform-toolbar {
       position: fixed;
-      display: none;
-      z-index: 1100;
-      background: rgba(255, 255, 255, 0.95);
-      border: 1.5px dashed #2563eb;
-      padding: 4px 8px;
-      font-size: 20px;
-      color: #0f172a;
-      border-radius: 4px;
-      outline: none;
-      min-width: 160px;
-    }
-
-    /* Floating Selection Bar */
-    #sel-bar {
-      position: fixed;
-      bottom: 18px;
+      top: 56px;
       left: 50%;
       transform: translateX(-50%);
       background: var(--bar-bg);
       border: 1px solid var(--bar-border);
-      border-radius: 10px;
+      border-radius: 8px;
       padding: 6px 12px;
-      box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
       display: none;
       align-items: center;
       gap: 10px;
+      z-index: 1100;
+      font-size: 13px;
+    }
+
+    .img-tool-btn {
+      padding: 4px 8px;
+      background: transparent;
+      border: 1px solid var(--bar-border);
+      border-radius: 4px;
+      color: var(--icon-color);
+      cursor: pointer;
+    }
+    .img-tool-btn:hover { background: var(--icon-hover); }
+
+    /* Selection Action Bar */
+    #sel-bar {
+      position: fixed;
+      bottom: 16px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--bar-bg);
+      border: 1px solid var(--bar-border);
+      border-radius: 8px;
+      padding: 6px 12px;
+      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
+      display: none;
+      align-items: center;
+      gap: 8px;
       z-index: 1005;
       font-size: 13px;
     }
 
-    /* Subtle Page Navigation Pill at Bottom Right */
-    .page-nav-float {
+    /* Dropdown Menus */
+    .dropdown {
       position: fixed;
-      bottom: 14px;
-      right: 16px;
-      display: flex;
-      align-items: center;
-      gap: 4px;
+      top: 52px;
       background: var(--bar-bg);
       border: 1px solid var(--bar-border);
       border-radius: 8px;
-      padding: 3px 6px;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-      z-index: 999;
-      font-size: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+      padding: 6px;
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 1200;
+      min-width: 190px;
     }
+    .dropdown.show { display: flex; }
+    .d-item {
+      padding: 8px 12px;
+      border: none;
+      background: transparent;
+      color: var(--icon-color);
+      font-size: 13px;
+      text-align: left;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .d-item:hover { background: var(--icon-hover); }
+    .d-item.selected { background: rgba(37,99,235,0.12); color: #2563eb; font-weight: 600; }
 
-    @media (max-width: 820px) {
-      .quick-sizes { display: none; }
-      .red-ring-wrapper { position: static; transform: none; }
+    /* Page Navigation Bottom Right */
+    .page-indicator {
+      position: fixed;
+      bottom: 12px;
+      right: 14px;
+      background: var(--bar-bg);
+      border: 1px solid var(--bar-border);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-size: 12px;
+      font-weight: 600;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
+      z-index: 999;
+      cursor: pointer;
     }
   </style>
 </head>
 <body>
 
-<!-- Top Scrble Ink Header -->
 <header class="scrble-header">
   <!-- Left Tools -->
   <div class="nav-group">
-    <button class="icon-btn" id="btn-main-menu" title="Menu & Cài đặt">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
-    </button>
-    <button class="icon-btn" id="btn-save-quick" title="Lưu bài học (.JSON)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-    </button>
-    <button class="icon-btn" id="btn-undo" title="Hoàn tác (Ctrl+Z)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg>
-    </button>
-    <button class="icon-btn" id="btn-redo" title="Làm lại (Ctrl+Y)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13"/></svg>
-    </button>
-    <button class="icon-btn" id="btn-insert-img" title="Chèn ảnh đề bài (Hoặc nhấn Ctrl+V để dán ảnh)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-    </button>
-    <button class="icon-btn" id="btn-add-page" title="Thêm trang giấy mới">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
-    </button>
-    <button class="icon-btn" id="btn-paper-menu" title="Nền giấy & Bảng đen">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="4" y1="21" x2="4" y2="14"/><line x1="4" y1="10" x2="4" y2="3"/><line x1="12" y1="21" x2="12" y2="12"/><line x1="12" y1="8" x2="12" y2="3"/><line x1="20" y1="21" x2="20" y2="16"/><line x1="20" y1="12" x2="20" y2="3"/><line x1="1" y1="14" x2="7" y2="14"/><line x1="9" y1="8" x2="15" y2="8"/><line x1="17" y1="16" x2="23" y2="16"/></svg>
-    </button>
-    <div class="page-counter" id="page-counter" title="Bấm để chuyển trang tiếp theo">(1/1)</div>
+    <button class="icon-btn" id="btn-menu" title="Menu chính"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <button class="icon-btn" id="btn-img" title="Chèn ảnh đề bài (Hoặc Ctrl+V)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
+    <button class="icon-btn" id="btn-undo" title="Hoàn tác"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></button>
+    <button class="icon-btn" id="btn-redo" title="Làm lại"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13"/></svg></button>
+    <button class="icon-btn" id="btn-page" title="Thêm trang mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+    <button class="icon-btn" id="btn-paper" title="Đổi nền giấy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg></button>
   </div>
 
-  <!-- Center Red Ring -->
-  <div class="red-ring-wrapper">
-    <button class="red-ring-btn" id="red-ring-toggle" title="Vòng tròn Scrble: Chạm để bật/tắt nhanh Tẩy nét"></button>
+  <!-- Center Signature Ring -->
+  <div class="center-ring-box">
+    <button class="scrble-ring" id="ring-toggle" title="Chạm để chuyển nhanh Bút / Tẩy">✍️</button>
   </div>
 
-  <!-- Right Colors, Sizes & Primary Tools -->
+  <!-- Right Color Dots & Tools -->
   <div class="nav-group">
-    <!-- 5 Quick Colors -->
-    <div class="quick-palette">
-      <div class="q-color" style="background:#16a34a;" data-color="#16a34a" title="Xanh lá"></div>
-      <div class="q-color" style="background:#2563eb;" data-color="#2563eb" title="Xanh dương"></div>
-      <div class="q-color" style="background:#dc2626;" data-color="#dc2626" title="Đỏ"></div>
-      <div class="q-color" style="background:#eab308;" data-color="#eab308" title="Vàng"></div>
-      <div class="q-color active" style="background:#0f172a;" data-color="#0f172a" title="Đen"></div>
+    <div class="color-dots">
+      <div class="dot" style="background:#eab308;" data-col="#eab308"></div>
+      <div class="dot" style="background:#22c55e;" data-col="#22c55e"></div>
+      <div class="dot" style="background:#06b6d4;" data-col="#06b6d4"></div>
+      <div class="dot" style="background:#ef4444;" data-col="#ef4444"></div>
+      <div class="dot" style="background:#000000;" data-col="#000000"></div>
+      <div class="dot active" style="background:#0f172a;" data-col="#0f172a"></div>
     </div>
 
-    <!-- 4 Quick Stroke Sizes -->
-    <div class="quick-sizes">
-      <div class="q-size" style="width:12px;height:12px;" data-size="7" title="Nét rất đậm"></div>
-      <div class="q-size" style="width:8px;height:8px;" data-size="4.5" title="Nét đậm"></div>
-      <div class="q-size active" style="width:5.5px;height:5.5px;" data-size="2.5" title="Nét chuẩn"></div>
-      <div class="q-size" style="width:3.5px;height:3.5px;" data-size="1.4" title="Nét mảnh"></div>
-    </div>
-
-    <!-- 3 Right Tools: Pen, Ruler/Shapes, Slash/Extras -->
-    <button class="icon-btn active-tool" id="tool-pen" title="Bút viết (P)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
-    </button>
-    <button class="icon-btn" id="tool-ruler" title="Thước kẻ & Hình học không gian (Đường thẳng, Nét đứt, Trục tọa độ)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/><path d="m14.5 12.5 2-2"/><path d="m11.5 9.5 2-2"/><path d="m8.5 6.5 2-2"/><path d="m17.5 15.5 2-2"/></svg>
-    </button>
-    <button class="icon-btn" id="tool-more" title="Công cụ bổ sung (Tẩy nét, Bút dạ quang, Chọn vùng, Chữ)">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="19" y1="5" x2="5" y2="19"/></svg>
-    </button>
+    <button class="icon-btn active" id="tool-pen" title="Bút viết"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg></button>
+    <button class="icon-btn" id="tool-ruler" title="Thước kẻ & Hình học (Nét đứt, Trục Oxyz)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/></svg></button>
+    <button class="icon-btn" id="tool-eraser" title="Tẩy nét thông minh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/></svg></button>
+    <button class="icon-btn" id="tool-select" title="Chọn & Kéo đối tượng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg></button>
+    <button class="icon-btn" id="tool-settings" title="Cài đặt nhanh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
   </div>
 </header>
 
-<!-- Dropdown: Main Menu (Left) -->
-<div class="dropdown-menu" id="menu-main" style="left: 12px;">
-  <button class="menu-item" id="act-new-doc">📄 Tạo bài giảng / bảng mới</button>
-  <button class="menu-item" id="act-open-json">📂 Mở file bài học (.JSON)</button>
-  <button class="menu-item" id="act-save-json">💾 Lưu toàn bộ trang (.JSON)</button>
-  <button class="menu-item" id="act-export-png">🖼️ Xuất trang hiện tại ra ảnh (.PNG)</button>
-  <div class="menu-sep"></div>
-  <button class="menu-item" id="act-pick-color">🎨 Chọn màu bút tùy ý... <input type="color" id="native-color" value="#7c3aed" style="width:22px;height:22px;border:none;background:none;cursor:pointer;"></button>
-  <div class="menu-sep"></div>
-  <button class="menu-item" id="act-clear-page" style="color:#dc2626;">🗑️ Xóa sạch trang hiện tại</button>
+<!-- Image Transform Floating Toolbar (khi chọn hoặc dán ảnh) -->
+<div id="img-transform-toolbar">
+  <span style="font-weight:600;">🖼️ Tùy chỉnh ảnh đề bài:</span>
+  <button class="img-tool-btn" id="img-smaller">Thu nhỏ (-)</button>
+  <button class="img-tool-btn" id="img-bigger">Phóng to (+)</button>
+  <button class="img-tool-btn" id="img-reset">Khôi phục gốc</button>
+  <button class="img-tool-btn" id="img-delete" style="color:#ef4444;">Xóa ảnh</button>
 </div>
 
-<!-- Dropdown: Paper Styles -->
-<div class="dropdown-menu" id="menu-paper" style="left: 220px;">
-  <button class="menu-item selected" data-paper="blank">⬜ Giấy trắng trơn (Chuẩn Scrble)</button>
-  <button class="menu-item" data-paper="grid">▦ Giấy ô ly vuông (Toán học)</button>
-  <button class="menu-item" data-paper="lined">☰ Giấy kẻ ngang</button>
-  <button class="menu-item" data-paper="dots">⁙ Giấy chấm bi</button>
-  <div class="menu-sep"></div>
-  <button class="menu-item" data-paper="dark">⬛ Bảng đen (Chống mỏi mắt)</button>
+<!-- Dropdowns -->
+<div class="dropdown" id="drop-menu" style="left:10px;">
+  <button class="d-item" id="menu-save">💾 Lưu file bài học (.JSON)</button>
+  <button class="d-item" id="menu-open">📂 Mở file bài học (.JSON)</button>
+  <button class="d-item" id="menu-png">🖼️ Xuất trang ra ảnh (.PNG)</button>
+  <div style="height:1px; background:var(--bar-border); margin:4px 0;"></div>
+  <button class="d-item" id="menu-clear" style="color:#ef4444;">🗑️ Xóa sạch trang này</button>
 </div>
 
-<!-- Dropdown: Ruler & Shapes (Right) -->
-<div class="dropdown-menu" id="menu-ruler" style="right: 48px;">
-  <button class="menu-item selected" data-shape="line">📏 Thước kẻ: Đoạn thẳng nét liền</button>
-  <button class="menu-item" data-shape="dashed">┄ Thước kẻ: Đoạn nét đứt (Hình 11)</button>
-  <button class="menu-item" data-shape="arrow">↗️ Vectơ / Mũi tên</button>
-  <div class="menu-sep"></div>
-  <button class="menu-item" data-shape="triangle">△ Hình tam giác / Hình chóp</button>
-  <button class="menu-item" data-shape="rect">▭ Hình chữ nhật / Bình hành</button>
-  <button class="menu-item" data-shape="circle">◯ Hình tròn / Elip đáy</button>
-  <div class="menu-sep"></div>
-  <button class="menu-item" data-shape="axes2d">➕ Hệ trục tọa độ Oxy</button>
-  <button class="menu-item" data-shape="axes3d">🧊 Hệ trục không gian Oxyz</button>
+<div class="dropdown" id="drop-paper" style="left:160px;">
+  <button class="d-item selected" data-p="lined">☰ Giấy kẻ ngang (Scrble Standard)</button>
+  <button class="d-item" data-p="grid">▦ Giấy ô ly vuông (Toán học)</button>
+  <button class="d-item" data-p="blank">⬜ Giấy trắng trơn</button>
+  <button class="d-item" data-p="dark">⬛ Bảng đen tối ưu ban đêm</button>
 </div>
 
-<!-- Dropdown: Slash / Extra Tools (Right) -->
-<div class="dropdown-menu" id="menu-more" style="right: 12px;">
-  <button class="menu-item" data-tool="eraser">🧽 Tẩy nét thông minh (Chạm để xóa)</button>
-  <button class="menu-item" data-tool="highlighter">🖍️ Bút dạ quang tô sáng</button>
-  <button class="menu-item" data-tool="select">👆 Chọn & Kéo di chuyển vật thể</button>
-  <button class="menu-item" data-tool="pan">✋ Kéo di chuyển mặt bảng</button>
-  <button class="menu-item" data-tool="text">🔤 Nhập văn bản / Đề bài</button>
+<div class="dropdown" id="drop-ruler" style="right:120px;">
+  <button class="d-item selected" data-s="line">📏 Đoạn thẳng liền</button>
+  <button class="d-item" data-s="dashed">┄ Đoạn nét đứt (Hình không gian 11)</button>
+  <button class="d-item" data-s="arrow">↗️ Vectơ / Mũi tên</button>
+  <button class="d-item" data-s="axes2d">➕ Hệ trục Oxy</button>
+  <button class="d-item" data-s="axes3d">🧊 Hệ trục Oxyz</button>
 </div>
 
-<!-- Workspace -->
+<!-- Workspace Canvas -->
 <div id="workspace">
   <canvas id="canvas"></canvas>
 </div>
 
-<!-- Floating Text Input -->
-<input type="text" id="text-editor" placeholder="Nhập chữ rồi nhấn Enter..." />
-
-<!-- Selection Actions -->
+<!-- Selection Action Bar -->
 <div id="sel-bar">
-  <span>Đang chọn:</span>
-  <button class="menu-item" id="sel-dup" style="padding:4px 8px; border:1px solid var(--bar-border);">📑 Nhân bản</button>
-  <button class="menu-item" id="sel-del" style="padding:4px 8px; border:1px solid var(--bar-border); color:#dc2626;">🗑️ Xóa</button>
+  <span>Đối tượng:</span>
+  <button class="d-item" id="sel-dup" style="padding:4px 8px; border:1px solid var(--bar-border);">📑 Nhân bản</button>
+  <button class="d-item" id="sel-del" style="padding:4px 8px; border:1px solid var(--bar-border); color:#ef4444;">🗑️ Xóa</button>
 </div>
 
-<!-- Bottom Right Subtle Page & Zoom Bar -->
-<div class="page-nav-float">
-  <button class="icon-btn" id="btn-prev" style="width:26px;height:26px;" title="Trang trước">◀</button>
-  <span id="zoom-txt" style="padding:0 6px; font-weight:600; cursor:pointer;" title="Nhấn để đặt lại 100%">100%</span>
-  <button class="icon-btn" id="btn-next" style="width:26px;height:26px;" title="Trang sau">▶</button>
-</div>
+<div class="page-indicator" id="page-ind">(Trang 1/1)</div>
 
-<input type="file" id="file-img-input" accept="image/*" style="display:none;" />
-<input type="file" id="file-json-input" accept=".json" style="display:none;" />
+<input type="file" id="file-img" accept="image/*" style="display:none;" />
+<input type="file" id="file-json" accept=".json" style="display:none;" />
 
 <script>
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-  const textEditor = document.getElementById('text-editor');
+  const imgToolbar = document.getElementById('img-transform-toolbar');
   const selBar = document.getElementById('sel-bar');
-  const redRing = document.getElementById('red-ring-toggle');
 
-  // Document State
-  let pages = [{ elements: [], paper: 'blank' }];
+  let pages = [{ elements: [], paper: 'lined' }];
   let pageIdx = 0;
-  let undoList = [[]];
-  let redoList = [[]];
+  let undoStack = [[]];
+  let redoStack = [[]];
 
-  // Tool State
-  let activeTool = 'pen'; // pen, ruler, eraser, highlighter, select, pan, text
-  let activeShape = 'line';
-  let activeColor = '#0f172a';
-  let activeSize = 2.5;
+  let tool = 'pen'; // pen, ruler, eraser, select
+  let shape = 'line';
+  let color = '#0f172a';
+  let size = 2.5;
 
-  // Camera
-  let scale = 1;
-  let offsetX = 0;
-  let offsetY = 0;
-
-  // Interaction
-  let isDown = false;
-  let isPanning = false;
-  let spaceDown = false;
-  let startWorld = { x: 0, y: 0 };
-  let lastScreen = { x: 0, y: 0 };
-  let draftElement = null;
-  let selectedIdx = -1;
-  let draggingSel = false;
+  let scale = 1, offsetX = 0, offsetY = 0;
+  let isDown = false, isPan = false;
+  let startW = { x: 0, y: 0 }, lastScr = { x: 0, y: 0 };
+  let draft = null;
+  let selIdx = -1, dragging = false;
 
   function resize() {
     const dpr = window.devicePixelRatio || 1;
     canvas.width = window.innerWidth * dpr;
-    canvas.height = (window.innerHeight - 52) * dpr;
+    canvas.height = (window.innerHeight - 48) * dpr;
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     draw();
   }
   window.addEventListener('resize', resize);
 
-  function toWorld(sx, sy) {
-    return { x: (sx - offsetX) / scale, y: (sy - offsetY) / scale };
-  }
-
-  function curPage() {
-    return pages[pageIdx];
-  }
+  function toWorld(sx, sy) { return { x: (sx - offsetX) / scale, y: (sy - offsetY) / scale }; }
+  function curPage() { return pages[pageIdx]; }
 
   function pushUndo() {
     const snap = JSON.parse(JSON.stringify(curPage().elements.map(e => ({ ...e, imgObj: undefined }))));
-    undoList[pageIdx].push(snap);
-    if (undoList[pageIdx].length > 50) undoList[pageIdx].shift();
-    redoList[pageIdx] = [];
+    undoStack[pageIdx].push(snap);
+    if (undoStack[pageIdx].length > 40) undoStack[pageIdx].shift();
+    redoStack[pageIdx] = [];
   }
 
-  function hydrateImages(els) {
+  function hydrate(els) {
     els.forEach(e => {
       if (e.type === 'image' && e.src && !e.imgObj) {
         const img = new Image();
@@ -530,10 +379,9 @@
     });
   }
 
-  // Draw Background
-  function renderBackground(paper) {
+  function drawBackground(paper) {
     const w = window.innerWidth;
-    const h = window.innerHeight - 52;
+    const h = window.innerHeight - 48;
     const isDark = paper === 'dark';
     document.body.classList.toggle('dark-mode', isDark);
 
@@ -542,38 +390,28 @@
 
     if (paper === 'blank') return;
 
-    const step = 30 * scale;
+    const step = 34 * scale;
     if (step < 6) return;
-    const sx = offsetX % step;
     const sy = offsetY % step;
 
-    if (paper === 'grid' || isDark) {
-      ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.07)' : 'rgba(148, 163, 184, 0.25)';
+    if (paper === 'lined') {
+      ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(148, 163, 184, 0.35)';
       ctx.lineWidth = 1;
       ctx.beginPath();
+      for (let y = sy; y < h; y += step) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
+      ctx.stroke();
+    } else if (paper === 'grid') {
+      ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
+      ctx.lineWidth = 1;
+      ctx.beginPath();
+      const sx = offsetX % step;
       for (let x = sx; x < w; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
       for (let y = sy; y < h; y += step) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
       ctx.stroke();
-    } else if (paper === 'lined') {
-      ctx.strokeStyle = 'rgba(148, 163, 184, 0.3)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      for (let y = sy; y < h; y += step) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
-      ctx.stroke();
-    } else if (paper === 'dots') {
-      ctx.fillStyle = 'rgba(100, 116, 139, 0.35)';
-      for (let x = sx; x < w; x += step) {
-        for (let y = sy; y < h; y += step) {
-          ctx.beginPath();
-          ctx.arc(x, y, 1.2, 0, Math.PI * 2);
-          ctx.fill();
-        }
-      }
     }
   }
 
-  // Draw Elements
-  function renderElement(el, selected = false) {
+  function drawElement(el, selected = false) {
     ctx.save();
     ctx.strokeStyle = el.color;
     ctx.fillStyle = el.color;
@@ -581,71 +419,27 @@
     ctx.lineCap = 'round';
     ctx.lineJoin = 'round';
 
-    if (el.type === 'highlighter') {
-      ctx.globalAlpha = 0.32;
-      ctx.lineWidth = el.size * 4;
-    }
-
-    if (el.type === 'pen' || el.type === 'highlighter') {
+    if (el.type === 'pen') {
       const pts = el.points;
-      if (!pts || pts.length === 0) return;
+      if (!pts || !pts.length) return;
       ctx.beginPath();
       ctx.moveTo(pts[0].x, pts[0].y);
       for (let i = 1; i < pts.length; i++) {
-        const mx = (pts[i - 1].x + pts[i].x) / 2;
-        const my = (pts[i - 1].y + pts[i].y) / 2;
-        ctx.quadraticCurveTo(pts[i - 1].x, pts[i - 1].y, mx, my);
+        ctx.quadraticCurveTo(pts[i-1].x, pts[i-1].y, (pts[i-1].x + pts[i].x)/2, (pts[i-1].y + pts[i].y)/2);
       }
-      ctx.lineTo(pts[pts.length - 1].x, pts[pts.length - 1].y);
       ctx.stroke();
     } else if (el.type === 'shape') {
-      const { x1, y1, x2, y2, shape } = el;
       ctx.beginPath();
-      if (shape === 'dashed') {
-        ctx.setLineDash([8, 7]);
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-      } else if (shape === 'line') {
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.stroke();
-      } else if (shape === 'arrow') {
-        drawArrow(x1, y1, x2, y2, el.size);
-      } else if (shape === 'rect') {
-        ctx.strokeRect(x1, y1, x2 - x1, y2 - y1);
-      } else if (shape === 'circle') {
-        ctx.ellipse((x1 + x2) / 2, (y1 + y2) / 2, Math.abs(x2 - x1) / 2, Math.abs(y2 - y1) / 2, 0, 0, Math.PI * 2);
-        ctx.stroke();
-      } else if (shape === 'triangle') {
-        ctx.moveTo((x1 + x2) / 2, y1);
-        ctx.lineTo(x1, y2);
-        ctx.lineTo(x2, y2);
-        ctx.closePath();
-        ctx.stroke();
-      } else if (shape === 'axes2d') {
-        const cx = (x1 + x2) / 2, cy = (y1 + y2) / 2;
-        drawArrow(x1, cy, x2, cy, el.size);
-        drawArrow(cx, y2, cx, y1, el.size);
-        ctx.font = 'bold 15px sans-serif';
-        ctx.fillText('x', x2 - 8, cy + 18);
-        ctx.fillText('y', cx + 10, y1 + 14);
-        ctx.fillText('O', cx - 16, cy + 16);
-      } else if (shape === 'axes3d') {
-        const ox = x1 + (x2 - x1) * 0.35;
-        const oy = y1 + (y2 - y1) * 0.65;
-        drawArrow(ox, oy, x2, oy, el.size);
-        drawArrow(ox, oy, ox, y1, el.size);
-        drawArrow(ox, oy, x1, y2, el.size);
-        ctx.font = 'bold 15px sans-serif';
-        ctx.fillText('y', x2 - 8, oy + 18);
-        ctx.fillText('z', ox + 10, y1 + 14);
-        ctx.fillText('x', x1 - 4, y2 + 16);
-        ctx.fillText('O', ox - 16, oy - 6);
+      if (el.shape === 'dashed') { ctx.setLineDash([8, 6]); ctx.moveTo(el.x1, el.y1); ctx.lineTo(el.x2, el.y2); ctx.stroke(); }
+      else if (el.shape === 'line') { ctx.moveTo(el.x1, el.y1); ctx.lineTo(el.x2, el.y2); ctx.stroke(); }
+      else if (el.shape === 'arrow') { drawArrow(el.x1, el.y1, el.x2, el.y2, el.size); }
+      else if (el.shape === 'axes2d') {
+        const cx = (el.x1 + el.x2)/2, cy = (el.y1 + el.y2)/2;
+        drawArrow(el.x1, cy, el.x2, cy, el.size); drawArrow(cx, el.y2, cx, el.y1, el.size);
+      } else if (el.shape === 'axes3d') {
+        const ox = el.x1 + (el.x2 - el.x1)*0.35, oy = el.y1 + (el.y2 - el.y1)*0.65;
+        drawArrow(ox, oy, el.x2, oy, el.size); drawArrow(ox, oy, ox, el.y1, el.size); drawArrow(ox, oy, el.x1, el.y2, el.size);
       }
-    } else if (el.type === 'text') {
-      ctx.font = `${Math.max(18, el.size * 6)}px sans-serif`;
-      ctx.fillText(el.text, el.x, el.y);
     } else if (el.type === 'image' && el.imgObj) {
       ctx.drawImage(el.imgObj, el.x, el.y, el.w, el.h);
     }
@@ -653,8 +447,7 @@
     if (selected) {
       const b = getBox(el);
       if (b) {
-        ctx.globalAlpha = 1;
-        ctx.setLineDash([5, 5]);
+        ctx.setLineDash([4, 4]);
         ctx.strokeStyle = '#2563eb';
         ctx.lineWidth = 1.5;
         ctx.strokeRect(b.x - 6, b.y - 6, b.w + 12, b.h + 12);
@@ -663,551 +456,258 @@
     ctx.restore();
   }
 
-  function drawArrow(x1, y1, x2, y2, size) {
-    const head = 10 + size * 1.4;
+  function drawArrow(x1, y1, x2, y2, sz) {
+    const h = 10 + sz * 1.2;
     const ang = Math.atan2(y2 - y1, x2 - x1);
     ctx.beginPath();
-    ctx.moveTo(x1, y1);
-    ctx.lineTo(x2, y2);
-    ctx.lineTo(x2 - head * Math.cos(ang - Math.PI / 6), y2 - head * Math.sin(ang - Math.PI / 6));
-    ctx.moveTo(x2, y2);
-    ctx.lineTo(x2 - head * Math.cos(ang + Math.PI / 6), y2 - head * Math.sin(ang + Math.PI / 6));
+    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+    ctx.lineTo(x2 - h * Math.cos(ang - Math.PI/6), y2 - h * Math.sin(ang - Math.PI/6));
+    ctx.moveTo(x2, y2); ctx.lineTo(x2 - h * Math.cos(ang + Math.PI/6), y2 - h * Math.sin(ang + Math.PI/6));
     ctx.stroke();
   }
 
   function draw() {
     const p = curPage();
-    renderBackground(p.paper);
-
+    drawBackground(p.paper);
     ctx.save();
     ctx.translate(offsetX, offsetY);
     ctx.scale(scale, scale);
-
-    p.elements.forEach((el, idx) => renderElement(el, idx === selectedIdx));
-    if (draftElement) renderElement(draftElement, false);
-
+    p.elements.forEach((e, i) => drawElement(e, i === selIdx));
+    if (draft) drawElement(draft, false);
     ctx.restore();
-    document.getElementById('page-counter').textContent = `(${pageIdx + 1}/${pages.length})`;
-    document.getElementById('zoom-txt').textContent = Math.round(scale * 100) + '%';
+    document.getElementById('page-ind').textContent = `(Trang ${pageIdx+1}/${pages.length})`;
   }
 
   function getBox(el) {
-    if (el.type === 'pen' || el.type === 'highlighter') {
+    if (el.type === 'pen') {
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      el.points.forEach(p => {
-        if (p.x < minX) minX = p.x; if (p.y < minY) minY = p.y;
-        if (p.x > maxX) maxX = p.x; if (p.y > maxY) maxY = p.y;
-      });
+      el.points.forEach(p => { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); });
       return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
     } else if (el.type === 'shape') {
       return { x: Math.min(el.x1, el.x2), y: Math.min(el.y1, el.y2), w: Math.abs(el.x2 - el.x1), h: Math.abs(el.y2 - el.y1) };
-    } else if (el.type === 'text') {
-      const fs = Math.max(18, el.size * 6);
-      return { x: el.x, y: el.y - fs, w: el.text.length * fs * 0.55, h: fs * 1.2 };
     } else if (el.type === 'image') {
       return { x: el.x, y: el.y, w: el.w, h: el.h };
     }
     return null;
   }
 
-  function hit(el, wx, wy, tol = 12) {
-    if (el.type === 'pen' || el.type === 'highlighter') {
-      return el.points.some(p => Math.hypot(p.x - wx, p.y - wy) <= tol + el.size);
-    }
+  function hit(el, wx, wy) {
     const b = getBox(el);
-    return b && wx >= b.x - tol && wx <= b.x + b.w + tol && wy >= b.y - tol && wy <= b.y + b.h + tol;
+    return b && wx >= b.x - 10 && wx <= b.x + b.w + 10 && wy >= b.y - 10 && wy <= b.y + b.h + 10;
   }
 
-  function eraseAt(wx, wy) {
-    const els = curPage().elements;
-    for (let i = els.length - 1; i >= 0; i--) {
-      if (hit(els[i], wx, wy, 14 / scale)) {
-        pushUndo();
-        els.splice(i, 1);
-        draw();
-        break;
-      }
-    }
-  }
-
-  function shiftElement(el, dx, dy) {
-    if (el.type === 'pen' || el.type === 'highlighter') el.points.forEach(p => { p.x += dx; p.y += dy; });
-    else if (el.type === 'shape') { el.x1 += dx; el.y1 += dy; el.x2 += dx; el.y2 += dy; }
-    else if (el.type === 'text' || el.type === 'image') { el.x += dx; el.y += dy; }
-  }
-
-  // Pointer Handlers
+  // Pointer Interaction
   canvas.addEventListener('pointerdown', (e) => {
-    closeDropdowns();
+    closeDrops();
     const rect = canvas.getBoundingClientRect();
-    const sx = e.clientX - rect.left;
-    const sy = e.clientY - rect.top;
-    const wPos = toWorld(sx, sy);
+    const wPos = toWorld(e.clientX - rect.left, e.clientY - rect.top);
 
-    if (e.button === 1 || spaceDown || activeTool === 'pan') {
-      isPanning = true;
-      lastScreen = { x: e.clientX, y: e.clientY };
-      canvas.style.cursor = 'grabbing';
+    if (e.button === 1 || e.shiftKey) {
+      isPan = true; lastScr = { x: e.clientX, y: e.clientY };
       return;
     }
 
-    if (activeTool === 'text') {
-      showTextEditor(e.clientX, e.clientY, wPos.x, wPos.y);
-      return;
-    }
-
-    if (activeTool === 'select') {
+    if (tool === 'select') {
       const els = curPage().elements;
-      selectedIdx = -1;
+      selIdx = -1;
       for (let i = els.length - 1; i >= 0; i--) {
-        if (hit(els[i], wPos.x, wPos.y, 10 / scale)) {
-          selectedIdx = i;
-          draggingSel = true;
-          startWorld = wPos;
-          pushUndo();
+        if (hit(els[i], wPos.x, wPos.y)) {
+          selIdx = i; dragging = true; startW = wPos; pushUndo();
           break;
         }
       }
-      selBar.style.display = selectedIdx !== -1 ? 'flex' : 'none';
+      selBar.style.display = selIdx !== -1 ? 'flex' : 'none';
+      imgToolbar.style.display = (selIdx !== -1 && els[selIdx].type === 'image') ? 'flex' : 'none';
       draw();
       return;
     }
 
-    if (activeTool === 'eraser') {
-      isDown = true;
-      eraseAt(wPos.x, wPos.y);
+    if (tool === 'eraser') {
+      isDown = true; eraseAt(wPos.x, wPos.y);
       return;
     }
 
-    isDown = true;
-    startWorld = wPos;
-
-    if (activeTool === 'pen' || activeTool === 'highlighter') {
-      draftElement = {
-        type: activeTool,
-        color: activeColor,
-        size: activeSize,
-        points: [{ x: wPos.x, y: wPos.y }]
-      };
-    } else if (activeTool === 'ruler') {
-      draftElement = {
-        type: 'shape',
-        shape: activeShape,
-        color: activeColor,
-        size: activeSize,
-        x1: wPos.x,
-        y1: wPos.y,
-        x2: wPos.x,
-        y2: wPos.y
-      };
+    isDown = true; startW = wPos;
+    if (tool === 'pen') {
+      draft = { type: 'pen', color, size, points: [{ x: wPos.x, y: wPos.y }] };
+    } else if (tool === 'ruler') {
+      draft = { type: 'shape', shape, color, size, x1: wPos.x, y1: wPos.y, x2: wPos.x, y2: wPos.y };
     }
   });
 
   canvas.addEventListener('pointermove', (e) => {
-    if (isPanning) {
-      offsetX += e.clientX - lastScreen.x;
-      offsetY += e.clientY - lastScreen.y;
-      lastScreen = { x: e.clientX, y: e.clientY };
-      draw();
-      return;
+    if (isPan) {
+      offsetX += e.clientX - lastScr.x; offsetY += e.clientY - lastScr.y;
+      lastScr = { x: e.clientX, y: e.clientY };
+      draw(); return;
     }
 
     const rect = canvas.getBoundingClientRect();
     const wPos = toWorld(e.clientX - rect.left, e.clientY - rect.top);
 
-    if (draggingSel && selectedIdx !== -1) {
-      shiftElement(curPage().elements[selectedIdx], wPos.x - startWorld.x, wPos.y - startWorld.y);
-      startWorld = wPos;
-      draw();
-      return;
+    if (dragging && selIdx !== -1) {
+      shiftEl(curPage().elements[selIdx], wPos.x - startW.x, wPos.y - startW.y);
+      startW = wPos; draw(); return;
     }
 
     if (!isDown) return;
+    if (tool === 'eraser') { eraseAt(wPos.x, wPos.y); return; }
 
-    if (activeTool === 'eraser') {
-      eraseAt(wPos.x, wPos.y);
-      return;
-    }
-
-    if (draftElement) {
-      if (draftElement.type === 'pen' || draftElement.type === 'highlighter') {
-        draftElement.points.push({ x: wPos.x, y: wPos.y });
-      } else if (draftElement.type === 'shape') {
-        let tx = wPos.x, ty = wPos.y;
-        if (e.shiftKey) {
-          if (Math.abs(tx - startWorld.x) > Math.abs(ty - startWorld.y) * 2) ty = startWorld.y;
-          else if (Math.abs(ty - startWorld.y) > Math.abs(tx - startWorld.x) * 2) tx = startWorld.x;
-        }
-        draftElement.x2 = tx;
-        draftElement.y2 = ty;
-      }
+    if (draft) {
+      if (draft.type === 'pen') draft.points.push({ x: wPos.x, y: wPos.y });
+      else if (draft.type === 'shape') { draft.x2 = wPos.x; draft.y2 = wPos.y; }
       draw();
     }
   });
 
   window.addEventListener('pointerup', () => {
-    if (isPanning) {
-      isPanning = false;
-      canvas.style.cursor = spaceDown || activeTool === 'pan' ? 'grab' : 'crosshair';
-    }
-    draggingSel = false;
-    if (isDown && draftElement) {
-      pushUndo();
-      curPage().elements.push(draftElement);
-      draftElement = null;
-      draw();
+    isPan = false; dragging = false;
+    if (isDown && draft) {
+      pushUndo(); curPage().elements.push(draft);
+      draft = null; draw();
     }
     isDown = false;
   });
 
-  // Wheel Scroll (Pan vertically like a real document) & Ctrl+Wheel Zoom
-  canvas.addEventListener('wheel', (e) => {
-    e.preventDefault();
-    if (e.ctrlKey || e.metaKey) {
-      const factor = e.deltaY < 0 ? 1.1 : 0.9;
-      const nextScale = Math.min(Math.max(scale * factor, 0.25), 4);
-      const rect = canvas.getBoundingClientRect();
-      const mx = e.clientX - rect.left;
-      const my = e.clientY - rect.top;
-      offsetX = mx - (mx - offsetX) * (nextScale / scale);
-      offsetY = my - (my - offsetY) * (nextScale / scale);
-      scale = nextScale;
-    } else {
-      offsetY -= e.deltaY * 0.7;
-      offsetX -= e.deltaX * 0.7;
+  function eraseAt(wx, wy) {
+    const els = curPage().elements;
+    for (let i = els.length - 1; i >= 0; i--) {
+      if (hit(els[i], wx, wy)) { pushUndo(); els.splice(i, 1); draw(); break; }
     }
-    draw();
-  }, { passive: false });
+  }
 
-  // Paste Image Directly (Ctrl+V) - Super handy for solving exercises!
+  function shiftEl(el, dx, dy) {
+    if (el.type === 'pen') el.points.forEach(p => { p.x += dx; p.y += dy; });
+    else if (el.type === 'shape') { el.x1 += dx; el.y1 += dy; el.x2 += dx; el.y2 += dy; }
+    else if (el.type === 'image') { el.x += dx; el.y += dy; }
+  }
+
+  // Image Paste & Transform
   window.addEventListener('paste', (e) => {
-    const items = e.clipboardData?.items;
-    if (!items) return;
-    for (const item of items) {
-      if (item.type.startsWith('image/')) {
-        const blob = item.getAsFile();
-        loadImageFile(blob);
-      }
+    for (const item of e.clipboardData?.items || []) {
+      if (item.type.startsWith('image/')) loadImgBlob(item.getAsFile());
     }
   });
 
-  function loadImageFile(file) {
-    if (!file) return;
+  function loadImgBlob(blob) {
     const reader = new FileReader();
     reader.onload = (ev) => {
       const img = new Image();
       img.onload = () => {
-        const maxW = 480;
-        const ratio = img.width > maxW ? maxW / img.width : 1;
-        const center = toWorld(window.innerWidth / 2, (window.innerHeight - 52) / 2);
+        const w = 450, h = (img.height * 450) / img.width;
+        const center = toWorld(window.innerWidth / 2, (window.innerHeight - 48) / 2);
         pushUndo();
-        curPage().elements.push({
-          type: 'image',
-          src: ev.target.result,
-          imgObj: img,
-          x: center.x - (img.width * ratio) / 2,
-          y: center.y - (img.height * ratio) / 2,
-          w: img.width * ratio,
-          h: img.height * ratio
-        });
-        selectTool('select');
-        selectedIdx = curPage().elements.length - 1;
+        curPage().elements.push({ type: 'image', src: ev.target.result, imgObj: img, x: center.x - w/2, y: center.y - h/2, w, h });
+        setTool('select');
+        selIdx = curPage().elements.length - 1;
         selBar.style.display = 'flex';
+        imgToolbar.style.display = 'flex';
         draw();
       };
       img.src = ev.target.result;
     };
-    reader.readAsDataURL(file);
+    reader.readAsDataURL(blob);
   }
 
-  // Tool Switching & UI Sync
-  function selectTool(tool) {
-    activeTool = tool;
-    selectedIdx = -1;
-    selBar.style.display = 'none';
-
-    document.getElementById('tool-pen').classList.toggle('active-tool', tool === 'pen');
-    document.getElementById('tool-ruler').classList.toggle('active-tool', tool === 'ruler');
-    document.getElementById('tool-more').classList.toggle('active-tool', ['eraser', 'highlighter', 'select', 'pan', 'text'].includes(tool));
-    redRing.classList.toggle('eraser-active', tool === 'eraser');
-
-    canvas.style.cursor = tool === 'pan' ? 'grab' : (tool === 'select' ? 'default' : 'crosshair');
-    draw();
-  }
-
-  // Red Ring Quick Toggle (Pen <-> Eraser)
-  redRing.addEventListener('click', () => {
-    selectTool(activeTool === 'eraser' ? 'pen' : 'eraser');
-  });
-
-  document.getElementById('tool-pen').addEventListener('click', () => selectTool('pen'));
-
-  // Dropdown Helpers
-  function toggleMenu(id) {
-    const m = document.getElementById(id);
-    const wasOpen = m.classList.contains('show');
-    closeDropdowns();
-    if (!wasOpen) m.classList.add('show');
-  }
-  function closeDropdowns() {
-    document.querySelectorAll('.dropdown-menu').forEach(d => d.classList.remove('show'));
-  }
-
-  document.getElementById('btn-main-menu').addEventListener('click', (e) => { e.stopPropagation(); toggleMenu('menu-main'); });
-  document.getElementById('btn-paper-menu').addEventListener('click', (e) => { e.stopPropagation(); toggleMenu('menu-paper'); });
-  document.getElementById('tool-ruler').addEventListener('click', (e) => {
-    e.stopPropagation();
-    selectTool('ruler');
-    toggleMenu('menu-ruler');
-  });
-  document.getElementById('tool-more').addEventListener('click', (e) => {
-    e.stopPropagation();
-    toggleMenu('menu-more');
-  });
-
-  // Ruler Shapes Selection
-  document.querySelectorAll('#menu-ruler .menu-item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      activeShape = btn.dataset.shape;
-      document.querySelectorAll('#menu-ruler .menu-item').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      selectTool('ruler');
-      closeDropdowns();
-    });
-  });
-
-  // Extra Tools Selection
-  document.querySelectorAll('#menu-more .menu-item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      selectTool(btn.dataset.tool);
-      closeDropdowns();
-    });
-  });
-
-  // Paper Background Selection
-  document.querySelectorAll('#menu-paper .menu-item').forEach(btn => {
-    btn.addEventListener('click', () => {
-      const paper = btn.dataset.paper;
-      curPage().paper = paper;
-      document.querySelectorAll('#menu-paper .menu-item').forEach(b => b.classList.remove('selected'));
-      btn.classList.add('selected');
-      if (paper === 'dark' && activeColor === '#0f172a') activeColor = '#ffffff';
-      if (paper !== 'dark' && activeColor === '#ffffff') activeColor = '#0f172a';
-      draw();
-      closeDropdowns();
-    });
-  });
-
-  // Quick Colors & Sizes
-  document.querySelectorAll('.q-color').forEach(c => {
-    c.addEventListener('click', () => {
-      document.querySelectorAll('.q-color').forEach(x => x.classList.remove('active'));
-      c.classList.add('active');
-      activeColor = c.dataset.color;
-      if (activeTool === 'eraser') selectTool('pen');
-    });
-  });
-
-  document.getElementById('native-color').addEventListener('input', (e) => {
-    document.querySelectorAll('.q-color').forEach(x => x.classList.remove('active'));
-    activeColor = e.target.value;
-    if (activeTool === 'eraser') selectTool('pen');
-  });
-
-  document.querySelectorAll('.q-size').forEach(s => {
-    s.addEventListener('click', () => {
-      document.querySelectorAll('.q-size').forEach(x => x.classList.remove('active'));
-      s.classList.add('active');
-      activeSize = parseFloat(s.dataset.size);
-    });
-  });
-
-  // Text Input
-  let textPos = { x: 0, y: 0 };
-  function showTextEditor(sx, sy, wx, wy) {
-    textPos = { x: wx, y: wy + 20 };
-    textEditor.style.left = sx + 'px';
-    textEditor.style.top = sy + 'px';
-    textEditor.style.color = activeColor;
-    textEditor.style.display = 'block';
-    textEditor.value = '';
-    setTimeout(() => textEditor.focus(), 10);
-  }
-  function saveText() {
-    const v = textEditor.value.trim();
-    if (v) {
-      pushUndo();
-      curPage().elements.push({ type: 'text', text: v, x: textPos.x, y: textPos.y, color: activeColor, size: activeSize });
-      draw();
-    }
-    textEditor.style.display = 'none';
-  }
-  textEditor.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') saveText();
-    if (e.key === 'Escape') textEditor.style.display = 'none';
-  });
-  textEditor.addEventListener('blur', saveText);
-
-  // Undo / Redo / Clear
-  function doUndo() {
-    if (undoList[pageIdx].length === 0) return;
-    redoList[pageIdx].push(JSON.parse(JSON.stringify(curPage().elements.map(e => ({ ...e, imgObj: undefined })))));
-    const prev = undoList[pageIdx].pop();
-    hydrateImages(prev);
-    curPage().elements = prev;
-    selectedIdx = -1;
-    selBar.style.display = 'none';
-    draw();
-  }
-  function doRedo() {
-    if (redoList[pageIdx].length === 0) return;
-    undoList[pageIdx].push(JSON.parse(JSON.stringify(curPage().elements.map(e => ({ ...e, imgObj: undefined })))));
-    const nxt = redoList[pageIdx].pop();
-    hydrateImages(nxt);
-    curPage().elements = nxt;
-    draw();
-  }
-
-  document.getElementById('btn-undo').addEventListener('click', doUndo);
-  document.getElementById('btn-redo').addEventListener('click', doRedo);
-
-  document.getElementById('act-clear-page').addEventListener('click', () => {
-    closeDropdowns();
-    if (confirm('Xóa sạch nội dung trang hiện tại?')) {
-      pushUndo();
-      curPage().elements = [];
-      selectedIdx = -1;
-      selBar.style.display = 'none';
+  document.getElementById('img-bigger').addEventListener('click', () => { scaleImg(1.15); });
+  document.getElementById('img-smaller').addEventListener('click', () => { scaleImg(0.85); });
+  document.getElementById('img-reset').addEventListener('click', () => {
+    if (selIdx !== -1 && curPage().elements[selIdx].type === 'image') {
+      const im = curPage().elements[selIdx];
+      im.w = 450; im.h = (im.imgObj.height * 450) / im.imgObj.width;
       draw();
     }
   });
-
-  // Insert Image & File Actions
-  document.getElementById('btn-insert-img').addEventListener('click', () => document.getElementById('file-img-input').click());
-  document.getElementById('file-img-input').addEventListener('change', (e) => {
-    loadImageFile(e.target.files[0]);
-    e.target.value = '';
+  document.getElementById('img-delete').addEventListener('click', () => {
+    if (selIdx !== -1) { pushUndo(); curPage().elements.splice(selIdx, 1); selIdx = -1; imgToolbar.style.display = 'none'; selBar.style.display = 'none'; draw(); }
   });
 
-  function downloadJSON() {
-    const clean = pages.map(p => ({ paper: p.paper, elements: p.elements.map(e => ({ ...e, imgObj: undefined })) }));
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(new Blob([JSON.stringify(clean)], { type: 'application/json' }));
-    a.download = 'Scrble-Math-Notes.json';
-    a.click();
+  function scaleImg(f) {
+    if (selIdx !== -1 && curPage().elements[selIdx].type === 'image') {
+      const im = curPage().elements[selIdx];
+      im.w *= f; im.h *= f; draw();
+    }
   }
 
-  document.getElementById('btn-save-quick').addEventListener('click', downloadJSON);
-  document.getElementById('act-save-json').addEventListener('click', () => { closeDropdowns(); downloadJSON(); });
-  document.getElementById('act-open-json').addEventListener('click', () => { closeDropdowns(); document.getElementById('file-json-input').click(); });
-  document.getElementById('file-json-input').addEventListener('change', (e) => {
-    const f = e.target.files[0];
-    if (!f) return;
-    const r = new FileReader();
-    r.onload = (ev) => {
-      try {
-        const data = JSON.parse(ev.target.result);
-        if (Array.isArray(data) && data.length) {
-          pages = data;
-          pages.forEach(p => hydrateImages(p.elements));
-          undoList = pages.map(() => []);
-          redoList = pages.map(() => []);
-          pageIdx = 0;
-          draw();
-        }
-      } catch { alert('File không hợp lệ!'); }
-    };
-    r.readAsText(f);
+  // Tool Switching
+  function setTool(t) {
+    tool = t;
+    ['pen', 'ruler', 'eraser', 'select'].forEach(k => {
+      document.getElementById('tool-' + k).classList.toggle('active', t === k);
+    });
+    if (t !== 'select') { selIdx = -1; selBar.style.display = 'none'; imgToolbar.style.display = 'none'; draw(); }
+  }
+
+  document.getElementById('tool-pen').addEventListener('click', () => setTool('pen'));
+  document.getElementById('tool-ruler').addEventListener('click', (e) => { e.stopPropagation(); setTool('ruler'); toggleDrop('drop-ruler'); });
+  document.getElementById('tool-eraser').addEventListener('click', () => setTool('eraser'));
+  document.getElementById('tool-select').addEventListener('click', () => setTool('select'));
+
+  // Center Ring Quick Toggle
+  document.getElementById('ring-toggle').addEventListener('click', () => {
+    setTool(tool === 'eraser' ? 'pen' : 'eraser');
   });
 
-  document.getElementById('act-export-png').addEventListener('click', () => {
-    closeDropdowns();
-    selectedIdx = -1;
-    draw();
-    const a = document.createElement('a');
-    a.download = `Trang-${pageIdx + 1}.png`;
-    a.href = canvas.toDataURL('image/png');
-    a.click();
+  // Color selection
+  document.querySelectorAll('.dot').forEach(d => {
+    d.addEventListener('click', () => {
+      document.querySelectorAll('.dot').forEach(x => x.classList.remove('active'));
+      d.classList.add('active');
+      color = d.dataset.col;
+      if (tool === 'eraser') setTool('pen');
+    });
   });
 
-  document.getElementById('act-new-doc').addEventListener('click', () => {
-    closeDropdowns();
-    if (confirm('Tạo bảng mới? (Dữ liệu chưa lưu sẽ bị xóa)')) {
-      pages = [{ elements: [], paper: 'blank' }];
-      undoList = [[]];
-      redoList = [[]];
-      pageIdx = 0;
-      offsetX = 0; offsetY = 0; scale = 1;
-      draw();
-    }
+  // Dropdowns
+  function toggleDrop(id) {
+    const el = document.getElementById(id);
+    const isOpen = el.classList.contains('show');
+    closeDrops();
+    if (!isOpen) el.classList.add('show');
+  }
+  function closeDrops() { document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show')); }
+
+  document.getElementById('btn-menu').addEventListener('click', (e) => { e.stopPropagation(); toggleDrop('drop-menu'); });
+  document.getElementById('btn-paper').addEventListener('click', (e) => { e.stopPropagation(); toggleDrop('drop-paper'); });
+
+  document.querySelectorAll('#drop-paper .d-item').forEach(item => {
+    item.addEventListener('click', () => {
+      curPage().paper = item.dataset.p;
+      document.querySelectorAll('#drop-paper .d-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      draw(); closeDrops();
+    });
   });
 
-  // Selection Actions
-  document.getElementById('sel-dup').addEventListener('click', () => {
-    if (selectedIdx === -1) return;
-    const orig = curPage().elements[selectedIdx];
-    const copy = JSON.parse(JSON.stringify({ ...orig, imgObj: undefined }));
-    if (orig.type === 'image') copy.imgObj = orig.imgObj;
-    shiftElement(copy, 25, 25);
-    pushUndo();
-    curPage().elements.push(copy);
-    selectedIdx = curPage().elements.length - 1;
-    draw();
+  document.querySelectorAll('#drop-ruler .d-item').forEach(item => {
+    item.addEventListener('click', () => {
+      shape = item.dataset.s;
+      document.querySelectorAll('#drop-ruler .d-item').forEach(i => i.classList.remove('selected'));
+      item.classList.add('selected');
+      setTool('ruler'); closeDrops();
+    });
   });
 
-  document.getElementById('sel-del').addEventListener('click', () => {
-    if (selectedIdx === -1) return;
-    pushUndo();
-    curPage().elements.splice(selectedIdx, 1);
-    selectedIdx = -1;
-    selBar.style.display = 'none';
-    draw();
+  // Top Buttons Undo/Redo/Page
+  document.getElementById('btn-undo').addEventListener('click', () => {
+    if (!undoStack[pageIdx].length) return;
+    redoStack[pageIdx].push(JSON.parse(JSON.stringify(curPage().elements.map(e => ({ ...e, imgObj: undefined })))));
+    const prev = undoStack[pageIdx].pop();
+    hydrate(prev); curPage().elements = prev; draw();
   });
-
-  // Pagination
-  document.getElementById('btn-add-page').addEventListener('click', () => {
+  document.getElementById('btn-redo').addEventListener('click', () => {
+    if (!redoStack[pageIdx].length) return;
+    undoStack[pageIdx].push(JSON.parse(JSON.stringify(curPage().elements.map(e => ({ ...e, imgObj: undefined }))));
+    const nxt = redoStack[pageIdx].pop();
+    hydrate(nxt); curPage().elements = nxt; draw();
+  });
+  document.getElementById('btn-page').addEventListener('click', () => {
     pages.push({ elements: [], paper: curPage().paper });
-    undoList.push([]);
-    redoList.push([]);
-    pageIdx = pages.length - 1;
-    offsetX = 0; offsetY = 0;
-    selectedIdx = -1;
-    selBar.style.display = 'none';
-    draw();
+    undoStack.push([]); redoStack.push([]);
+    pageIdx = pages.length - 1; draw();
   });
-
-  document.getElementById('btn-prev').addEventListener('click', () => {
-    if (pageIdx > 0) { pageIdx--; selectedIdx = -1; selBar.style.display = 'none'; draw(); }
-  });
-  document.getElementById('btn-next').addEventListener('click', () => {
-    if (pageIdx < pages.length - 1) { pageIdx++; selectedIdx = -1; selBar.style.display = 'none'; draw(); }
-  });
-  document.getElementById('page-counter').addEventListener('click', () => {
-    if (pages.length > 1) {
-      pageIdx = (pageIdx + 1) % pages.length;
-      selectedIdx = -1;
-      selBar.style.display = 'none';
-      draw();
-    }
-  });
-  document.getElementById('zoom-txt').addEventListener('click', () => {
-    scale = 1; offsetX = 0; offsetY = 0; draw();
-  });
-
-  // Shortcuts
-  window.addEventListener('keydown', (e) => {
-    if (document.activeElement === textEditor) return;
-    if (e.code === 'Space') { spaceDown = true; canvas.style.cursor = 'grab'; }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z') { e.preventDefault(); doUndo(); }
-    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'y') { e.preventDefault(); doRedo(); }
-    if (e.key === 'Delete' && selectedIdx !== -1) document.getElementById('sel-del').click();
-    if (e.key.toLowerCase() === 'p') selectTool('pen');
-    if (e.key.toLowerCase() === 'e') selectTool('eraser');
-    if (e.key.toLowerCase() === 'r') selectTool('ruler');
-  });
-  window.addEventListener('keyup', (e) => {
-    if (e.code === 'Space') { spaceDown = false; canvas.style.cursor = activeTool === 'pan' ? 'grab' : 'crosshair'; }
-  });
+  document.getElementById('btn-img').addEventListener('click', () => document.getElementById('file-img').click());
+  document.getElementById('file-img').addEventListener('change', (e) => { if(e.target.files[0]) loadImgBlob(e.target.files[0]); e.target.value=''; });
 
   resize();
 </script>
