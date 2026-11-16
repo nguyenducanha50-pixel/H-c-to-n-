@@ -10,345 +10,188 @@
       --bar-border: #e2e8f0;
       --icon-color: #1e293b;
       --icon-hover: #f1f5f9;
-      --active-bg: #e2e8f0;
       --canvas-bg: #ffffff;
       --text-color: #0f172a;
     }
-
     body.dark-mode {
       --bar-bg: #1e293b;
       --bar-border: #334155;
       --icon-color: #f8fafc;
       --icon-hover: #334155;
-      --active-bg: #475569;
       --canvas-bg: #121212;
       --text-color: #f8fafc;
     }
+    * { box-sizing: border-box; margin: 0; padding: 0; user-select: none; font-family: "Segoe UI", sans-serif; }
+    html, body { width: 100%; height: 100%; overflow: hidden; background: var(--canvas-bg); color: var(--text-color); }
 
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-      user-select: none;
-      -webkit-user-select: none;
-      font-family: "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
-    }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;
-      background: var(--canvas-bg);
-      color: var(--text-color);
-    }
-
-    /* Scrble Ink Top Header */
+    /* Top Bar */
     .scrble-header {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 48px;
-      background: var(--bar-bg);
-      border-bottom: 1px solid var(--bar-border);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 10px;
-      z-index: 1000;
+      position: fixed; top: 0; left: 0; right: 0; height: 48px;
+      background: var(--bar-bg); border-bottom: 1px solid var(--bar-border);
+      display: flex; align-items: center; justify-content: space-between; padding: 0 12px; z-index: 1000;
     }
-
-    .nav-group {
-      display: flex;
-      align-items: center;
-      gap: 3px;
-    }
-
+    .nav-group { display: flex; align-items: center; gap: 4px; }
     .icon-btn {
-      width: 34px;
-      height: 34px;
-      border: none;
-      background: transparent;
-      color: var(--icon-color);
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: background 0.12s;
+      width: 34px; height: 34px; border: none; background: transparent; color: var(--icon-color);
+      border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer;
     }
-
     .icon-btn:hover { background: var(--icon-hover); }
-    .icon-btn.active { background: var(--active-bg); }
+    .icon-btn.active { background: var(--bar-border); }
+    .icon-btn svg { width: 18px; height: 18px; stroke-width: 1.8; }
 
-    .icon-btn svg {
-      width: 18px;
-      height: 18px;
-      stroke-width: 1.8;
+    /* Center Red Ring */
+    .center-ring {
+      position: absolute; left: 50%; transform: translateX(-50%);
+      width: 26px; height: 26px; border-radius: 50%; border: 2.5px solid #dc2626;
+      background: transparent; cursor: pointer; transition: transform 0.15s;
     }
+    .center-ring:hover { transform: scale(1.1); }
+    .center-ring.eraser-mode { background: #dc2626; }
 
-    /* Center Signature Scrble Black Ring */
-    .center-ring-box {
-      position: absolute;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .scrble-ring {
-      width: 30px;
-      height: 30px;
-      border-radius: 50%;
-      border: 2px solid #0f172a;
-      background: #0f172a;
-      color: #ffffff;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: transform 0.15s;
-    }
-    body.dark-mode .scrble-ring { border-color: #f8fafc; background: #f8fafc; color: #121212; }
-    .scrble-ring:hover { transform: scale(1.08); }
-
-    /* Color Dots Palette */
-    .color-dots {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      margin: 0 6px;
-    }
-
+    /* Color Palette */
+    .color-dots { display: flex; align-items: center; gap: 8px; margin: 0 10px; }
     .dot {
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      cursor: pointer;
-      transition: transform 0.12s;
+      width: 14px; height: 14px; border-radius: 50%; cursor: pointer; transition: transform 0.15s;
     }
-    .dot:hover { transform: scale(1.25); }
+    .dot:hover { transform: scale(1.2); }
     .dot.active { transform: scale(1.35); box-shadow: 0 0 0 2px var(--bar-bg), 0 0 0 3.5px var(--icon-color); }
 
     /* Workspace */
-    #workspace {
-      position: fixed;
-      top: 48px;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      overflow: hidden;
-      touch-action: none;
-    }
+    #workspace { position: fixed; top: 48px; left: 0; right: 0; bottom: 0; overflow: hidden; touch-action: none; }
+    canvas { display: block; width: 100%; height: 100%; cursor: crosshair; }
 
-    canvas {
-      display: block;
-      width: 100%;
-      height: 100%;
-      cursor: crosshair;
-    }
-
-    /* Image Transform Floating Box */
-    #img-transform-toolbar {
-      position: fixed;
-      top: 56px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--bar-bg);
-      border: 1px solid var(--bar-border);
-      border-radius: 8px;
-      padding: 6px 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.15);
-      display: none;
-      align-items: center;
-      gap: 10px;
-      z-index: 1100;
-      font-size: 13px;
-    }
-
-    .img-tool-btn {
-      padding: 4px 8px;
-      background: transparent;
-      border: 1px solid var(--bar-border);
-      border-radius: 4px;
-      color: var(--icon-color);
-      cursor: pointer;
-    }
-    .img-tool-btn:hover { background: var(--icon-hover); }
-
-    /* Selection Action Bar */
-    #sel-bar {
-      position: fixed;
-      bottom: 16px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: var(--bar-bg);
-      border: 1px solid var(--bar-border);
-      border-radius: 8px;
-      padding: 6px 12px;
-      box-shadow: 0 4px 16px rgba(0,0,0,0.12);
-      display: none;
-      align-items: center;
-      gap: 8px;
-      z-index: 1005;
-      font-size: 13px;
-    }
-
-    /* Dropdown Menus */
+    /* Dropdowns */
     .dropdown {
-      position: fixed;
-      top: 52px;
-      background: var(--bar-bg);
-      border: 1px solid var(--bar-border);
-      border-radius: 8px;
-      box-shadow: 0 8px 24px rgba(0,0,0,0.12);
-      padding: 6px;
-      display: none;
-      flex-direction: column;
-      gap: 2px;
-      z-index: 1200;
-      min-width: 190px;
+      position: fixed; top: 52px; background: var(--bar-bg); border: 1px solid var(--bar-border);
+      border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.12); padding: 6px;
+      display: none; flex-direction: column; gap: 2px; z-index: 1200; min-width: 210px;
     }
     .dropdown.show { display: flex; }
     .d-item {
-      padding: 8px 12px;
-      border: none;
-      background: transparent;
-      color: var(--icon-color);
-      font-size: 13px;
-      text-align: left;
-      border-radius: 4px;
-      cursor: pointer;
+      padding: 8px 12px; border: none; background: transparent; color: var(--icon-color);
+      font-size: 13px; text-align: left; border-radius: 4px; cursor: pointer;
     }
     .d-item:hover { background: var(--icon-hover); }
     .d-item.selected { background: rgba(37,99,235,0.12); color: #2563eb; font-weight: 600; }
 
-    /* Page Navigation Bottom Right */
-    .page-indicator {
-      position: fixed;
-      bottom: 12px;
-      right: 14px;
-      background: var(--bar-bg);
-      border: 1px solid var(--bar-border);
-      border-radius: 6px;
-      padding: 4px 8px;
-      font-size: 12px;
-      font-weight: 600;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.06);
-      z-index: 999;
-      cursor: pointer;
+    /* Floating Image Toolbar */
+    #img-toolbar {
+      position: fixed; top: 56px; left: 50%; transform: translateX(-50%);
+      background: var(--bar-bg); border: 1px solid var(--bar-border); border-radius: 8px;
+      padding: 6px 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.15); display: none; align-items: center; gap: 8px; z-index: 1100; font-size: 13px;
     }
+    .img-btn { padding: 4px 8px; background: transparent; border: 1px solid var(--bar-border); border-radius: 4px; color: var(--icon-color); cursor: pointer; }
+    .img-btn:hover { background: var(--icon-hover); }
+
+    /* Bottom Right Navigation & Zoom */
+    .bottom-nav {
+      position: fixed; bottom: 12px; right: 14px; background: var(--bar-bg); border: 1px solid var(--bar-border);
+      border-radius: 6px; padding: 4px 8px; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.06); z-index: 999; font-size: 12px; font-weight: 600;
+    }
+    .nav-arrow { border: none; background: transparent; cursor: pointer; color: var(--icon-color); font-size: 14px; padding: 0 4px; }
   </style>
 </head>
 <body>
 
 <header class="scrble-header">
-  <!-- Left Tools -->
+  <!-- Left Header Group -->
   <div class="nav-group">
-    <button class="icon-btn" id="btn-menu" title="Menu chính"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
-    <button class="icon-btn" id="btn-img" title="Chèn ảnh đề bài (Hoặc Ctrl+V)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
-    <button class="icon-btn" id="btn-undo" title="Hoàn tác"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></button>
-    <button class="icon-btn" id="btn-redo" title="Làm lại"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13"/></svg></button>
-    <button class="icon-btn" id="btn-page" title="Thêm trang mới"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
-    <button class="icon-btn" id="btn-paper" title="Đổi nền giấy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg></button>
+    <button class="icon-btn" id="b-menu" title="Menu"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg></button>
+    <button class="icon-btn" id="b-save" title="Lưu bài (.JSON)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/></svg></button>
+    <button class="icon-btn" id="b-undo" title="Hoàn tác"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M9 14L4 9l5-5"/><path d="M4 9h10.5a5.5 5.5 0 0 1 5.5 5.5v0a5.5 5.5 0 0 1-5.5 5.5H11"/></svg></button>
+    <button class="icon-btn" id="b-redo" title="Làm lại"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M15 14l5-5-5-5"/><path d="M20 9H9.5A5.5 5.5 0 0 0 4 14.5v0A5.5 5.5 0 0 0 9.5 20H13"/></svg></button>
+    <button class="icon-btn" id="b-img" title="Chèn ảnh đề bài (Hoặc dán Ctrl+V)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/></svg></button>
+    <button class="icon-btn" id="b-page" title="Thêm trang"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg></button>
+    <button class="icon-btn" id="b-paper" title="Nền giấy"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="3" x2="9" y2="21"/></svg></button>
   </div>
 
   <!-- Center Signature Ring -->
-  <div class="center-ring-box">
-    <button class="scrble-ring" id="ring-toggle" title="Chạm để chuyển nhanh Bút / Tẩy">✍️</button>
-  </div>
+  <button class="center-ring" id="ring-btn" title="Chạm để chuyển Bút / Tẩy"></button>
 
-  <!-- Right Color Dots & Tools -->
+  <!-- Right Colors & Tools -->
   <div class="nav-group">
     <div class="color-dots">
-      <div class="dot" style="background:#eab308;" data-col="#eab308"></div>
-      <div class="dot" style="background:#22c55e;" data-col="#22c55e"></div>
-      <div class="dot" style="background:#06b6d4;" data-col="#06b6d4"></div>
-      <div class="dot" style="background:#ef4444;" data-col="#ef4444"></div>
-      <div class="dot" style="background:#000000;" data-col="#000000"></div>
-      <div class="dot active" style="background:#0f172a;" data-col="#0f172a"></div>
+      <div class="dot" style="background:#22c55e;" data-c="#22c55e"></div>
+      <div class="dot" style="background:#3b82f6;" data-c="#3b82f6"></div>
+      <div class="dot" style="background:#ef4444;" data-c="#ef4444"></div>
+      <div class="dot" style="background:#eab308;" data-c="#eab308"></div>
+      <div class="dot" style="background:#000000;" data-c="#000000"></div>
+      <div class="dot active" style="background:#0f172a;" data-c="#0f172a"></div>
     </div>
-
-    <button class="icon-btn active" id="tool-pen" title="Bút viết"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg></button>
-    <button class="icon-btn" id="tool-ruler" title="Thước kẻ & Hình học (Nét đứt, Trục Oxyz)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/></svg></button>
-    <button class="icon-btn" id="tool-eraser" title="Tẩy nét thông minh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="m7 21-4.3-4.3c-1-1-1-2.5 0-3.4l9.6-9.6c1-1 2.5-1 3.4 0l5.6 5.6c1 1 1 2.5 0 3.4L13 21"/><path d="M22 21H7"/></svg></button>
-    <button class="icon-btn" id="tool-select" title="Chọn & Kéo đối tượng"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M3 3l7.07 16.97 2.51-7.39 7.39-2.51L3 3z"/></svg></button>
-    <button class="icon-btn" id="tool-settings" title="Cài đặt nhanh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg></button>
+    <button class="icon-btn active" id="t-pen" title="Bút viết"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/></svg></button>
+    <button class="icon-btn" id="t-ruler" title="Thước kẻ & Hình học không gian"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M21.3 15.3a2.4 2.4 0 0 1 0 3.4l-2.6 2.6a2.4 2.4 0 0 1-3.4 0L2.7 8.7a2.41 2.41 0 0 1 0-3.4l2.6-2.6a2.41 2.41 0 0 1 3.4 0Z"/></svg></button>
   </div>
 </header>
 
-<!-- Image Transform Floating Toolbar (khi chọn hoặc dán ảnh) -->
-<div id="img-transform-toolbar">
-  <span style="font-weight:600;">🖼️ Tùy chỉnh ảnh đề bài:</span>
-  <button class="img-tool-btn" id="img-smaller">Thu nhỏ (-)</button>
-  <button class="img-tool-btn" id="img-bigger">Phóng to (+)</button>
-  <button class="img-tool-btn" id="img-reset">Khôi phục gốc</button>
-  <button class="img-tool-btn" id="img-delete" style="color:#ef4444;">Xóa ảnh</button>
-</div>
-
 <!-- Dropdowns -->
-<div class="dropdown" id="drop-menu" style="left:10px;">
-  <button class="d-item" id="menu-save">💾 Lưu file bài học (.JSON)</button>
-  <button class="d-item" id="menu-open">📂 Mở file bài học (.JSON)</button>
-  <button class="d-item" id="menu-png">🖼️ Xuất trang ra ảnh (.PNG)</button>
+<div class="dropdown" id="drop-ruler" style="right:12px;">
+  <button class="d-item selected" data-s="line">📏 Thước kẻ: Đoạn thẳng nét liền</button>
+  <button class="d-item" data-s="dashed">┄ Thước kẻ: Đoạn nét đứt (Hình 11)</button>
+  <button class="d-item" data-s="arrow">↗️ Vecto / Mũi tên</button>
   <div style="height:1px; background:var(--bar-border); margin:4px 0;"></div>
-  <button class="d-item" id="menu-clear" style="color:#ef4444;">🗑️ Xóa sạch trang này</button>
+  <button class="d-item" data-s="triangle">△ Hình tam giác / Hình chóp</button>
+  <button class="d-item" data-s="rect">▭ Hình chữ nhật / Bình hành</button>
+  <button class="d-item" data-s="circle">◯ Hình tròn / Elip đáy</button>
+  <div style="height:1px; background:var(--bar-border); margin:4px 0;"></div>
+  <button class="d-item" data-s="axes2d">➕ Hệ trục tọa độ Oxy</button>
+  <button class="d-item" data-s="axes3d">🧊 Hệ trục không gian Oxyz</button>
 </div>
 
-<div class="dropdown" id="drop-paper" style="left:160px;">
+<div class="dropdown" id="drop-paper" style="left:180px;">
   <button class="d-item selected" data-p="lined">☰ Giấy kẻ ngang (Scrble Standard)</button>
   <button class="d-item" data-p="grid">▦ Giấy ô ly vuông (Toán học)</button>
   <button class="d-item" data-p="blank">⬜ Giấy trắng trơn</button>
   <button class="d-item" data-p="dark">⬛ Bảng đen tối ưu ban đêm</button>
 </div>
 
-<div class="dropdown" id="drop-ruler" style="right:120px;">
-  <button class="d-item selected" data-s="line">📏 Đoạn thẳng liền</button>
-  <button class="d-item" data-s="dashed">┄ Đoạn nét đứt (Hình không gian 11)</button>
-  <button class="d-item" data-s="arrow">↗️ Vectơ / Mũi tên</button>
-  <button class="d-item" data-s="axes2d">➕ Hệ trục Oxy</button>
-  <button class="d-item" data-s="axes3d">🧊 Hệ trục Oxyz</button>
+<div class="dropdown" id="drop-menu" style="left:12px;">
+  <button class="d-item" id="m-open">📂 Mở file (.JSON)</button>
+  <button class="d-item" id="m-png">🖼️ Xuất trang ra ảnh (.PNG)</button>
+  <div style="height:1px; background:var(--bar-border); margin:4px 0;"></div>
+  <button class="d-item" id="m-clear" style="color:#ef4444;">🗑️ Xóa sạch trang này</button>
 </div>
 
-<!-- Workspace Canvas -->
-<div id="workspace">
-  <canvas id="canvas"></canvas>
+<!-- Floating Image Tool -->
+<div id="img-toolbar">
+  <span style="font-weight:650;">🖼️ Ảnh đề:</span>
+  <button class="img-btn" id="img-minus">Thu nhỏ (-)</button>
+  <button class="img-btn" id="img-plus">Phóng to (+)</button>
+  <button class="img-btn" id="img-del" style="color:#ef4444;">Xóa ảnh</button>
 </div>
 
-<!-- Selection Action Bar -->
-<div id="sel-bar">
-  <span>Đối tượng:</span>
-  <button class="d-item" id="sel-dup" style="padding:4px 8px; border:1px solid var(--bar-border);">📑 Nhân bản</button>
-  <button class="d-item" id="sel-del" style="padding:4px 8px; border:1px solid var(--bar-border); color:#ef4444;">🗑️ Xóa</button>
+<!-- Workspace -->
+<div id="workspace"><canvas id="canvas"></canvas></div>
+
+<!-- Bottom Right Nav -->
+<div class="bottom-nav">
+  <button class="nav-arrow" id="n-prev">◀</button>
+  <span id="n-txt">100%</span>
+  <button class="nav-arrow" id="n-next">▶</button>
 </div>
 
-<div class="page-indicator" id="page-ind">(Trang 1/1)</div>
-
-<input type="file" id="file-img" accept="image/*" style="display:none;" />
-<input type="file" id="file-json" accept=".json" style="display:none;" />
+<input type="file" id="f-img" accept="image/*" style="display:none;" />
+<input type="file" id="f-json" accept=".json" style="display:none;" />
 
 <script>
   const canvas = document.getElementById('canvas');
   const ctx = canvas.getContext('2d');
-  const imgToolbar = document.getElementById('img-transform-toolbar');
-  const selBar = document.getElementById('sel-bar');
+  const imgBar = document.getElementById('img-toolbar');
+  const ringBtn = document.getElementById('ring-btn');
 
   let pages = [{ elements: [], paper: 'lined' }];
-  let pageIdx = 0;
-  let undoStack = [[]];
-  let redoStack = [[]];
+  let pIdx = 0;
+  let undoStack = [[]], redoStack = [[]];
 
-  let tool = 'pen'; // pen, ruler, eraser, select
+  let tool = 'pen'; // pen, ruler, eraser
   let shape = 'line';
   let color = '#0f172a';
   let size = 2.5;
 
-  let scale = 1, offsetX = 0, offsetY = 0;
+  let scale = 1, offX = 0, offY = 0;
   let isDown = false, isPan = false;
-  let startW = { x: 0, y: 0 }, lastScr = { x: 0, y: 0 };
+  let startW = {x:0, y:0}, lastScr = {x:0, y:0};
   let draft = null;
-  let selIdx = -1, dragging = false;
+  let selImgIdx = -1, draggingImg = false;
 
   function resize() {
     const dpr = window.devicePixelRatio || 1;
@@ -359,17 +202,17 @@
   }
   window.addEventListener('resize', resize);
 
-  function toWorld(sx, sy) { return { x: (sx - offsetX) / scale, y: (sy - offsetY) / scale }; }
-  function curPage() { return pages[pageIdx]; }
+  function toWorld(sx, sy) { return { x: (sx - offX) / scale, y: (sy - offY) / scale }; }
+  function curPage() { return pages[pIdx]; }
 
   function pushUndo() {
     const snap = JSON.parse(JSON.stringify(curPage().elements.map(e => ({ ...e, imgObj: undefined }))));
-    undoStack[pageIdx].push(snap);
-    if (undoStack[pageIdx].length > 40) undoStack[pageIdx].shift();
-    redoStack[pageIdx] = [];
+    undoStack[pIdx].push(snap);
+    if (undoStack[pIdx].length > 40) undoStack[pIdx].shift();
+    redoStack[pIdx] = [];
   }
 
-  function hydrate(els) {
+  function hydrateImages(els) {
     els.forEach(e => {
       if (e.type === 'image' && e.src && !e.imgObj) {
         const img = new Image();
@@ -379,51 +222,42 @@
     });
   }
 
-  function drawBackground(paper) {
-    const w = window.innerWidth;
-    const h = window.innerHeight - 48;
+  function drawBg(paper) {
+    const w = window.innerWidth, h = window.innerHeight - 48;
     const isDark = paper === 'dark';
     document.body.classList.toggle('dark-mode', isDark);
-
     ctx.fillStyle = isDark ? '#121212' : '#ffffff';
     ctx.fillRect(0, 0, w, h);
 
     if (paper === 'blank') return;
-
-    const step = 34 * scale;
+    const step = 32 * scale;
     if (step < 6) return;
-    const sy = offsetY % step;
+    const sy = offY % step;
 
     if (paper === 'lined') {
       ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(148, 163, 184, 0.35)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
+      ctx.lineWidth = 1; ctx.beginPath();
       for (let y = sy; y < h; y += step) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
       ctx.stroke();
     } else if (paper === 'grid') {
       ctx.strokeStyle = 'rgba(148, 163, 184, 0.25)';
-      ctx.lineWidth = 1;
-      ctx.beginPath();
-      const sx = offsetX % step;
+      ctx.lineWidth = 1; ctx.beginPath();
+      const sx = offX % step;
       for (let x = sx; x < w; x += step) { ctx.moveTo(x, 0); ctx.lineTo(x, h); }
       for (let y = sy; y < h; y += step) { ctx.moveTo(0, y); ctx.lineTo(w, y); }
       ctx.stroke();
     }
   }
 
-  function drawElement(el, selected = false) {
+  function drawEl(el, sel = false) {
     ctx.save();
-    ctx.strokeStyle = el.color;
-    ctx.fillStyle = el.color;
-    ctx.lineWidth = el.size;
-    ctx.lineCap = 'round';
-    ctx.lineJoin = 'round';
+    ctx.strokeStyle = el.color; ctx.fillStyle = el.color;
+    ctx.lineWidth = el.size; ctx.lineCap = 'round'; ctx.lineJoin = 'round';
 
     if (el.type === 'pen') {
       const pts = el.points;
       if (!pts || !pts.length) return;
-      ctx.beginPath();
-      ctx.moveTo(pts[0].x, pts[0].y);
+      ctx.beginPath(); ctx.moveTo(pts[0].x, pts[0].y);
       for (let i = 1; i < pts.length; i++) {
         ctx.quadraticCurveTo(pts[i-1].x, pts[i-1].y, (pts[i-1].x + pts[i].x)/2, (pts[i-1].y + pts[i].y)/2);
       }
@@ -433,6 +267,9 @@
       if (el.shape === 'dashed') { ctx.setLineDash([8, 6]); ctx.moveTo(el.x1, el.y1); ctx.lineTo(el.x2, el.y2); ctx.stroke(); }
       else if (el.shape === 'line') { ctx.moveTo(el.x1, el.y1); ctx.lineTo(el.x2, el.y2); ctx.stroke(); }
       else if (el.shape === 'arrow') { drawArrow(el.x1, el.y1, el.x2, el.y2, el.size); }
+      else if (el.shape === 'triangle') { ctx.moveTo((el.x1 + el.x2)/2, el.y1); ctx.lineTo(el.x1, el.y2); ctx.lineTo(el.x2, el.y2); ctx.closePath(); ctx.stroke(); }
+      else if (el.shape === 'rect') { ctx.strokeRect(el.x1, el.y1, el.x2 - el.x1, el.y2 - el.y1); }
+      else if (el.shape === 'circle') { ctx.ellipse((el.x1+el.x2)/2, (el.y1+el.y2)/2, Math.abs(el.x2-el.x1)/2, Math.abs(el.y2-el.y1)/2, 0, 0, Math.PI*2); ctx.stroke(); }
       else if (el.shape === 'axes2d') {
         const cx = (el.x1 + el.x2)/2, cy = (el.y1 + el.y2)/2;
         drawArrow(el.x1, cy, el.x2, cy, el.size); drawArrow(cx, el.y2, cx, el.y1, el.size);
@@ -444,12 +281,10 @@
       ctx.drawImage(el.imgObj, el.x, el.y, el.w, el.h);
     }
 
-    if (selected) {
+    if (sel) {
       const b = getBox(el);
       if (b) {
-        ctx.setLineDash([4, 4]);
-        ctx.strokeStyle = '#2563eb';
-        ctx.lineWidth = 1.5;
+        ctx.setLineDash([4, 4]); ctx.strokeStyle = '#2563eb'; ctx.lineWidth = 1.5;
         ctx.strokeRect(b.x - 6, b.y - 6, b.w + 12, b.h + 12);
       }
     }
@@ -457,10 +292,8 @@
   }
 
   function drawArrow(x1, y1, x2, y2, sz) {
-    const h = 10 + sz * 1.2;
-    const ang = Math.atan2(y2 - y1, x2 - x1);
-    ctx.beginPath();
-    ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+    const h = 10 + sz * 1.2, ang = Math.atan2(y2 - y1, x2 - x1);
+    ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
     ctx.lineTo(x2 - h * Math.cos(ang - Math.PI/6), y2 - h * Math.sin(ang - Math.PI/6));
     ctx.moveTo(x2, y2); ctx.lineTo(x2 - h * Math.cos(ang + Math.PI/6), y2 - h * Math.sin(ang + Math.PI/6));
     ctx.stroke();
@@ -468,20 +301,20 @@
 
   function draw() {
     const p = curPage();
-    drawBackground(p.paper);
+    drawBg(p.paper);
     ctx.save();
-    ctx.translate(offsetX, offsetY);
+    ctx.translate(offX, offY);
     ctx.scale(scale, scale);
-    p.elements.forEach((e, i) => drawElement(e, i === selIdx));
-    if (draft) drawElement(draft, false);
+    p.elements.forEach((e, i) => drawEl(e, i === selImgIdx));
+    if (draft) drawEl(draft, false);
     ctx.restore();
-    document.getElementById('page-ind').textContent = `(Trang ${pageIdx+1}/${pages.length})`;
+    document.getElementById('n-txt').textContent = `Trang ${pIdx+1}/${pages.length}`;
   }
 
   function getBox(el) {
     if (el.type === 'pen') {
       let minX = Infinity, minY = Infinity, maxX = -Infinity, maxY = -Infinity;
-      el.points.forEach(p => { minX = Math.min(minX, p.x); minY = Math.min(minY, p.y); maxX = Math.max(maxX, p.x); maxY = Math.max(maxY, p.y); });
+      el.points.forEach(pt => { minX = Math.min(minX, pt.x); minY = Math.min(minY, pt.y); maxX = Math.max(maxX, pt.x); maxY = Math.max(maxY, pt.y); });
       return { x: minX, y: minY, w: maxX - minX, h: maxY - minY };
     } else if (el.type === 'shape') {
       return { x: Math.min(el.x1, el.x2), y: Math.min(el.y1, el.y2), w: Math.abs(el.x2 - el.x1), h: Math.abs(el.y2 - el.y1) };
@@ -496,35 +329,32 @@
     return b && wx >= b.x - 10 && wx <= b.x + b.w + 10 && wy >= b.y - 10 && wy <= b.y + b.h + 10;
   }
 
-  // Pointer Interaction
+  // Pointer interactions
   canvas.addEventListener('pointerdown', (e) => {
     closeDrops();
     const rect = canvas.getBoundingClientRect();
     const wPos = toWorld(e.clientX - rect.left, e.clientY - rect.top);
 
     if (e.button === 1 || e.shiftKey) {
-      isPan = true; lastScr = { x: e.clientX, y: e.clientY };
-      return;
-    }
-
-    if (tool === 'select') {
-      const els = curPage().elements;
-      selIdx = -1;
-      for (let i = els.length - 1; i >= 0; i--) {
-        if (hit(els[i], wPos.x, wPos.y)) {
-          selIdx = i; dragging = true; startW = wPos; pushUndo();
-          break;
-        }
-      }
-      selBar.style.display = selIdx !== -1 ? 'flex' : 'none';
-      imgToolbar.style.display = (selIdx !== -1 && els[selIdx].type === 'image') ? 'flex' : 'none';
-      draw();
-      return;
+      isPan = true; lastScr = { x: e.clientX, y: e.clientY }; return;
     }
 
     if (tool === 'eraser') {
-      isDown = true; eraseAt(wPos.x, wPos.y);
-      return;
+      isDown = true; eraseAt(wPos.x, wPos.y); return;
+    }
+
+    // Check if clicking existing image to move/resize
+    const els = curPage().elements;
+    let clickedImg = -1;
+    for (let i = els.length - 1; i >= 0; i--) {
+      if (els[i].type === 'image' && hit(els[i], wPos.x, wPos.y)) { clickedImg = i; break; }
+    }
+
+    if (clickedImg !== -1) {
+      selImgIdx = clickedImg; draggingImg = true; startW = wPos; pushUndo();
+      imgBar.style.display = 'flex'; draw(); return;
+    } else {
+      selImgIdx = -1; imgBar.style.display = 'none'; draw();
     }
 
     isDown = true; startW = wPos;
@@ -537,16 +367,16 @@
 
   canvas.addEventListener('pointermove', (e) => {
     if (isPan) {
-      offsetX += e.clientX - lastScr.x; offsetY += e.clientY - lastScr.y;
-      lastScr = { x: e.clientX, y: e.clientY };
-      draw(); return;
+      offX += e.clientX - lastScr.x; offY += e.clientY - lastScr.y;
+      lastScr = { x: e.clientX, y: e.clientY }; draw(); return;
     }
 
     const rect = canvas.getBoundingClientRect();
     const wPos = toWorld(e.clientX - rect.left, e.clientY - rect.top);
 
-    if (dragging && selIdx !== -1) {
-      shiftEl(curPage().elements[selIdx], wPos.x - startW.x, wPos.y - startW.y);
+    if (draggingImg && selImgIdx !== -1) {
+      const im = curPage().elements[selImgIdx];
+      im.x += wPos.x - startW.x; im.y += wPos.y - startW.y;
       startW = wPos; draw(); return;
     }
 
@@ -561,7 +391,7 @@
   });
 
   window.addEventListener('pointerup', () => {
-    isPan = false; dragging = false;
+    isPan = false; draggingImg = false;
     if (isDown && draft) {
       pushUndo(); curPage().elements.push(draft);
       draft = null; draw();
@@ -576,13 +406,7 @@
     }
   }
 
-  function shiftEl(el, dx, dy) {
-    if (el.type === 'pen') el.points.forEach(p => { p.x += dx; p.y += dy; });
-    else if (el.type === 'shape') { el.x1 += dx; el.y1 += dy; el.x2 += dx; el.y2 += dy; }
-    else if (el.type === 'image') { el.x += dx; el.y += dy; }
-  }
-
-  // Image Paste & Transform
+  // Paste image directly (Ctrl+V)
   window.addEventListener('paste', (e) => {
     for (const item of e.clipboardData?.items || []) {
       if (item.type.startsWith('image/')) loadImgBlob(item.getAsFile());
@@ -598,10 +422,8 @@
         const center = toWorld(window.innerWidth / 2, (window.innerHeight - 48) / 2);
         pushUndo();
         curPage().elements.push({ type: 'image', src: ev.target.result, imgObj: img, x: center.x - w/2, y: center.y - h/2, w, h });
-        setTool('select');
-        selIdx = curPage().elements.length - 1;
-        selBar.style.display = 'flex';
-        imgToolbar.style.display = 'flex';
+        selImgIdx = curPage().elements.length - 1;
+        imgBar.style.display = 'flex';
         draw();
       };
       img.src = ev.target.result;
@@ -609,51 +431,38 @@
     reader.readAsDataURL(blob);
   }
 
-  document.getElementById('img-bigger').addEventListener('click', () => { scaleImg(1.15); });
-  document.getElementById('img-smaller').addEventListener('click', () => { scaleImg(0.85); });
-  document.getElementById('img-reset').addEventListener('click', () => {
-    if (selIdx !== -1 && curPage().elements[selIdx].type === 'image') {
-      const im = curPage().elements[selIdx];
-      im.w = 450; im.h = (im.imgObj.height * 450) / im.imgObj.width;
-      draw();
-    }
-  });
-  document.getElementById('img-delete').addEventListener('click', () => {
-    if (selIdx !== -1) { pushUndo(); curPage().elements.splice(selIdx, 1); selIdx = -1; imgToolbar.style.display = 'none'; selBar.style.display = 'none'; draw(); }
+  // Image Toolbar Actions
+  document.getElementById('img-plus').addEventListener('click', () => scaleImage(1.15));
+  document.getElementById('img-minus').addEventListener('click', () => scaleImage(0.85));
+  document.getElementById('img-del').addEventListener('click', () => {
+    if (selImgIdx !== -1) { pushUndo(); curPage().elements.splice(selImgIdx, 1); selImgIdx = -1; imgBar.style.display = 'none'; draw(); }
   });
 
-  function scaleImg(f) {
-    if (selIdx !== -1 && curPage().elements[selIdx].type === 'image') {
-      const im = curPage().elements[selIdx];
-      im.w *= f; im.h *= f; draw();
+  function scaleImage(factor) {
+    if (selImgIdx !== -1 && curPage().elements[selImgIdx].type === 'image') {
+      const im = curPage().elements[selImgIdx];
+      im.w *= factor; im.h *= factor; draw();
     }
   }
 
   // Tool Switching
   function setTool(t) {
     tool = t;
-    ['pen', 'ruler', 'eraser', 'select'].forEach(k => {
-      document.getElementById('tool-' + k).classList.toggle('active', t === k);
-    });
-    if (t !== 'select') { selIdx = -1; selBar.style.display = 'none'; imgToolbar.style.display = 'none'; draw(); }
+    document.getElementById('t-pen').classList.toggle('active', t === 'pen');
+    document.getElementById('t-ruler').classList.toggle('active', t === 'ruler');
+    ringBtn.classList.toggle('eraser-mode', t === 'eraser');
+    draw();
   }
 
-  document.getElementById('tool-pen').addEventListener('click', () => setTool('pen'));
-  document.getElementById('tool-ruler').addEventListener('click', (e) => { e.stopPropagation(); setTool('ruler'); toggleDrop('drop-ruler'); });
-  document.getElementById('tool-eraser').addEventListener('click', () => setTool('eraser'));
-  document.getElementById('tool-select').addEventListener('click', () => setTool('select'));
+  ringBtn.addEventListener('click', () => setTool(tool === 'eraser' ? 'pen' : 'eraser'));
+  document.getElementById('t-pen').addEventListener('click', () => setTool('pen'));
+  document.getElementById('t-ruler').addEventListener('click', (e) => { e.stopPropagation(); setTool('ruler'); toggleDrop('drop-ruler'); });
 
-  // Center Ring Quick Toggle
-  document.getElementById('ring-toggle').addEventListener('click', () => {
-    setTool(tool === 'eraser' ? 'pen' : 'eraser');
-  });
-
-  // Color selection
+  // Colors
   document.querySelectorAll('.dot').forEach(d => {
     d.addEventListener('click', () => {
       document.querySelectorAll('.dot').forEach(x => x.classList.remove('active'));
-      d.classList.add('active');
-      color = d.dataset.col;
+      d.classList.add('active'); color = d.dataset.c;
       if (tool === 'eraser') setTool('pen');
     });
   });
@@ -662,20 +471,18 @@
   function toggleDrop(id) {
     const el = document.getElementById(id);
     const isOpen = el.classList.contains('show');
-    closeDrops();
-    if (!isOpen) el.classList.add('show');
+    closeDrops(); if (!isOpen) el.classList.add('show');
   }
   function closeDrops() { document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show')); }
 
-  document.getElementById('btn-menu').addEventListener('click', (e) => { e.stopPropagation(); toggleDrop('drop-menu'); });
-  document.getElementById('btn-paper').addEventListener('click', (e) => { e.stopPropagation(); toggleDrop('drop-paper'); });
+  document.getElementById('b-menu').addEventListener('click', (e) => { e.stopPropagation(); toggleDrop('drop-menu'); });
+  document.getElementById('b-paper').addEventListener('click', (e) => { e.stopPropagation(); toggleDrop('drop-paper'); });
 
   document.querySelectorAll('#drop-paper .d-item').forEach(item => {
     item.addEventListener('click', () => {
       curPage().paper = item.dataset.p;
       document.querySelectorAll('#drop-paper .d-item').forEach(i => i.classList.remove('selected'));
-      item.classList.add('selected');
-      draw(); closeDrops();
+      item.classList.add('selected'); draw(); closeDrops();
     });
   });
 
@@ -683,31 +490,38 @@
     item.addEventListener('click', () => {
       shape = item.dataset.s;
       document.querySelectorAll('#drop-ruler .d-item').forEach(i => i.classList.remove('selected'));
-      item.classList.add('selected');
-      setTool('ruler'); closeDrops();
+      item.classList.add('selected'); setTool('ruler'); closeDrops();
     });
   });
 
-  // Top Buttons Undo/Redo/Page
-  document.getElementById('btn-undo').addEventListener('click', () => {
-    if (!undoStack[pageIdx].length) return;
-    redoStack[pageIdx].push(JSON.parse(JSON.stringify(curPage().elements.map(e => ({ ...e, imgObj: undefined })))));
-    const prev = undoStack[pageIdx].pop();
-    hydrate(prev); curPage().elements = prev; draw();
+  // Undo / Redo / Page
+  document.getElementById('b-undo').addEventListener('click', () => {
+    if (!undoStack[pIdx].length) return;
+    redoStack[pIdx].push(JSON.parse(JSON.stringify(curPage().elements.map(e => ({ ...e, imgObj: undefined })))));
+    const prev = undoStack[pIdx].pop(); hydrateImages(prev); curPage().elements = prev; draw();
   });
-  document.getElementById('btn-redo').addEventListener('click', () => {
-    if (!redoStack[pageIdx].length) return;
-    undoStack[pageIdx].push(JSON.parse(JSON.stringify(curPage().elements.map(e => ({ ...e, imgObj: undefined }))));
-    const nxt = redoStack[pageIdx].pop();
-    hydrate(nxt); curPage().elements = nxt; draw();
+  document.getElementById('b-redo').addEventListener('click', () => {
+    if (!redoStack[pIdx].length) return;
+    undoStack[pIdx].push(JSON.parse(JSON.stringify(curPage().elements.map(e => ({ ...e, imgObj: undefined })))));
+    const nxt = redoStack[pIdx].pop(); hydrateImages(nxt); curPage().elements = nxt; draw();
   });
-  document.getElementById('btn-page').addEventListener('click', () => {
+  document.getElementById('b-page').addEventListener('click', () => {
     pages.push({ elements: [], paper: curPage().paper });
-    undoStack.push([]); redoStack.push([]);
-    pageIdx = pages.length - 1; draw();
+    undoStack.push([]); redoStack.push([]); pIdx = pages.length - 1; draw();
   });
-  document.getElementById('btn-img').addEventListener('click', () => document.getElementById('file-img').click());
-  document.getElementById('file-img').addEventListener('change', (e) => { if(e.target.files[0]) loadImgBlob(e.target.files[0]); e.target.value=''; });
+  document.getElementById('b-img').addEventListener('click', () => document.getElementById('f-img').click());
+  document.getElementById('f-img').addEventListener('change', (e) => { if(e.target.files[0]) loadImgBlob(e.target.files[0]); e.target.value=''; });
+
+  document.getElementById('n-prev').addEventListener('click', () => { if(pIdx > 0) { pIdx--; draw(); } });
+  document.getElementById('n-next').addEventListener('click', () => { if(pIdx < pages.length - 1) { pIdx++; draw(); } });
+
+  document.getElementById('m-png').addEventListener('click', () => {
+    closeDrops(); selImgIdx = -1; imgBar.style.display = 'none'; draw();
+    const a = document.createElement('a'); a.download = `Trang-${pIdx+1}.png`; a.href = canvas.toDataURL('image/png'); a.click();
+  });
+  document.getElementById('m-clear').addEventListener('click', () => {
+    closeDrops(); if(confirm('Xóa sạch trang này?')) { pushUndo(); curPage().elements = []; draw(); }
+  });
 
   resize();
 </script>
